@@ -1,0 +1,22 @@
+reg1
+reg2 true
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
+reg1
+reg2 false
