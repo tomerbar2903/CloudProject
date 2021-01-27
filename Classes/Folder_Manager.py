@@ -38,13 +38,7 @@ class MyHandler(FileSystemEventHandler):
                                                    SEPERATOR +
                                                    self.client.without_cloud(
                                                        new_file))
-                ans = self.client.read_server_response(self.client.my_socket)
-                while not ans.decode() == READY:
-                    time.sleep(SHORT_SLEEP)
-                    ans = self.client.read_server_response(
-                        self.client.my_socket)
-                rep = self.client.upload(new_file, self.client.my_socket)
-                print(rep)
+                self.client.request = new_file
             elif File(new_file).get_format() == CLOUD_FORMAT and \
                     DOT in new_file and APPINFO not in new_file:
                 self.client.send_request_to_server(self.client.my_socket,

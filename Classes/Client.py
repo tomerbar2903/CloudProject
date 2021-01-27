@@ -71,14 +71,6 @@ class Client(object):
             return True
         return False
 
-    @staticmethod
-    def get_server_details():
-        """
-        returns the ip and port of client for app
-        """
-        reg = ReadRegistry(SERVER_REG, r"E:\12\bla.txt")
-        return reg.get_ip_port()
-
     def user_setup(self, username, password):
         """
        :return: sets the username and pass word to database
@@ -158,9 +150,9 @@ class Client(object):
     def send_request_to_server(server_socket, request):
         """
         Send the request to the server.
-        First the length of the request (2 digits), then the request itself
-        Example: '04EXIT'
-        Example: '12DIR c:\cyber'
+        First the length of the request (4 digits), then the request itself
+        Example: '0004EXIT'
+        Example: '0012DIR c:\cyber'
         """
         print(request)
         server_socket. \
@@ -171,47 +163,21 @@ class Client(object):
         :return: does what the client asks for
         """
         done = False
-        data = str(2)  # starting value
         # while the operation is not quit. if quit - go out
         while not done:
             # if not blank command
-            req_and_prm = self.request.split()
-            ok = self.valid_request()
-            if ok:
-                # sends the operation to the server
-                data = self.read_server_response(self.my_socket)
-                if data is not None:
-                    if data.decode() == READY:
-                        data = self.upload(
-                            req_and_prm[END], self.my_socket).encode()
-                    self.handle_server_response(data)
-            else:  # prints the message accordingly
-                if type(ok) == bool:
-                    print(NONE_VALID)
-                else:
-                    print(ok)
+            # sends the operation to the server
+            data = self.read_server_response(self.my_socket)
+            if data is not None:
+                if data.decode() == READY:
+                    data = self.upload(
+                        self.request, self.my_socket)
+                self.handle_server_response(data)
             if data != SERVER_FELL:
                 pass
             else:
                 self.my_socket.close()
                 done = True
-
-    def valid_request(self):
-        """
-        :param request: the client'request request
-        :return: if the request is valid or not
-        """
-        req_and_prms = self.request.split()
-        command = req_and_prms[START]
-        if command.upper() in COMMANDS:
-            if command.upper() == UPLOAD_FILE and \
-                    len(req_and_prms) == TWO_PARAMETER:
-                return True
-            elif command.upper() == NO_COMMAND:
-                return True
-            else:
-                return FILE_DOESNT_EXIST
-        return False
 
     @staticmethod
     def read_server_response(server_socket_choice):
@@ -236,7 +202,6 @@ class Client(object):
         try:
             if server_response.decode() != "":
                 if server_response != SERVER_FELL:
-                    print("print bytes: ", server_response)
                     print("print string: ", server_response.decode())
                 else:
                     print("\n\n******the server has fallen down******\n")
@@ -279,7 +244,7 @@ class Client(object):
             if File(file_path).get_format() != CLOUD_FORMAT:
                 client_file = open(file_path, 'rb')
                 content = client_file.read(BYTE_NUMBER)
-                while content != b'':
+                while content != BLANK.encode():
                     Client.send_binary_response_to_server(content, my_socket)
                     content = client_file.read(BYTE_NUMBER)
                 client_file.close()
