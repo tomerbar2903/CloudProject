@@ -251,7 +251,11 @@ class Client(object):
                 Client.send_binary_response_to_server(FILE_END, my_socket)
                 Client.delete_file(file_path)
                 Client.make_imaginary_file(file_path)
+                time.sleep(LONG_SLEEP)
+                print(self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, OBSERVER))
                 self.client_reg.set_observer(ALLOW_OBS)
+                # TODO - delete afterwards
+                print(self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, OBSERVER))
                 return Client.read_server_response(my_socket)
             else:
                 return FILE_ALREADY_IN_CLOUD

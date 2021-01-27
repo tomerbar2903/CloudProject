@@ -40,26 +40,23 @@ class SystemRegisterGUI(GeneralGUI):
         """
         username = self.user_txt.GetLineText(0)
         password = self.password_txt.GetLineText(0)
+        self.Close()
         if self.mode == LOG_IN_BTN:
             r = self.folder_manager.client.user_login(username, password)
             if r:
-                self.Close()
                 wx.MessageBox('Logged In', 'Register', wx.OK | wx.ICON_INFORMATION)
                 subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
             else:
-                self.Close()
                 wx.MessageBox('Username or Password Are Incorrect', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
                 SystemRegisterGUI(None, self.mode)  # Opens up a new window
         if self.mode == SIGN_UP_BTN:
             r = self.folder_manager.client.user_setup(username, password)
             if r:
-                self.Close()
                 wx.MessageBox('New Account Is Ready To Go!', 'Register', wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
                 InitCloudGUI()
             else:
-                self.Close()
                 wx.MessageBox('Username Already Exists', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
                 SystemRegisterGUI(None, self.mode)  # Opens up a new window
