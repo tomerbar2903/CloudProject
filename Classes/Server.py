@@ -250,7 +250,8 @@ class Server(object):
                     else:
                         answer = ok
                 # sends the general message to the client
-                Server.send_response_to_client(answer, client_socket)
+                if answer is not None:
+                    Server.send_response_to_client(answer, client_socket)
         except socket.error as msg:
             print("A client has left or app finished", msg)
             self.clients -= ADDER

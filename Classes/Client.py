@@ -152,7 +152,7 @@ class Client(object):
         """
         :return: converts a file path without client's cloud
         """
-        return request.replace(self.cloud, '')
+        return request.replace(self.cloud, BLANK)
 
     @staticmethod
     def send_request_to_server(server_socket, request):
@@ -174,32 +174,23 @@ class Client(object):
         data = str(2)  # starting value
         # while the operation is not quit. if quit - go out
         while not done:
-
             # if not blank command
             req_and_prm = self.request.split()
-            command = req_and_prm[START]
             ok = self.valid_request()
             if ok:
-                time.sleep(SHORT_SLEEP)
                 # sends the operation to the server
-                if self.client_reg.\
-                        read_registry(HKEY_LOCAL_MACHINE,
-                                      CLIENT_REG, BLUP_REG) == ALLOW_BLUP:
-                    self.send_request_to_server(
-                        self.my_socket,
-                        self.username + SEPERATOR + self.request)
-
-                    data = self.read_server_response(self.my_socket)
+                data = self.read_server_response(self.my_socket)
+                if data is not None:
                     if data.decode() == READY:
                         data = self.upload(
                             req_and_prm[END], self.my_socket).encode()
                     self.handle_server_response(data)
             else:  # prints the message accordingly
                 if type(ok) == bool:
-                    print("you entered a non valid value")
+                    print(NONE_VALID)
                 else:
                     print(ok)
-            if command.upper() != 'EXIT' and data != SERVER_FELL:
+            if data != SERVER_FELL:
                 pass
             else:
                 self.my_socket.close()
