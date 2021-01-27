@@ -1,0 +1,1 @@
+pyinstaller E:\12\Project\Classes\App23.py --noconfirm --onedir --windowed --icon "E:/12/Project/cloud_icon (1).ico" --add-data "E:/12/Project/Classes/ReadRegistry.py;."  
