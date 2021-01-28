@@ -32,6 +32,10 @@ class Client(object):
                 self.my_socket.connect((self.ip, self.port))
                 self.username = NO_USER
                 self.password = NO_PASSWORD
+                self.client_reg = ReadRegistry(CLIENT_REG)  # client reading
+                self.cloud = self.client_reg. \
+                    read_registry(HKEY_LOCAL_MACHINE,
+                                  CLIENT_REG, CLOUD_REG)
             elif constructor_mode == APP_MODE:
                 self.request = NO_COMMAND
                 reg_ip = ReadRegistry(SERVER_REG)  # client reading

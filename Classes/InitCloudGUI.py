@@ -56,14 +56,14 @@ class InitCloudGUI(GeneralGUI):
         :return: the user can browse and select a folder
         """
         self.browser = wx.DirPickerCtrl()
-        self.browser.Create(self.pnl, path="", pos=wx.DefaultPosition, size=wx.DefaultSize,
+        self.browser.Create(self.pnl, path=BLANK, pos=wx.DefaultPosition, size=wx.DefaultSize,
                             style=wx.DIRP_DEFAULT_STYLE, name=wx.DirPickerCtrlNameStr)
 
     def order(self):
         """
         :return: sets sizer
         """
-        self.sizer.Add(window=self.static_txt, proportion=0, flag=wx.ALL | wx.CENTER, border=7)
-        self.sizer.Add(window=self.browser, proportion=0, flag=wx.ALL | wx.CENTER, border=12)
-        self.sizer.Add(window=self.submit_btn, proportion=0, flag=wx.ALL | wx.CENTER, border=7)
+        self.sizer.Add(window=self.static_txt, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
+        self.sizer.Add(window=self.browser, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
+        self.sizer.Add(window=self.submit_btn, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
         self.SetSizer(self.sizer)
