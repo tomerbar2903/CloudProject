@@ -199,9 +199,9 @@ class Client(object):
         :return: handles the response
         """
         try:
-            if server_response.decode() != "":
+            if server_response.decode() != BLANK:
                 if server_response != SERVER_FELL:
-                    print("print string: ", server_response.decode())
+                    print(server_response.decode())
                 else:
                     print("\n\n******the server has fallen down******\n")
         except Exception as msg:
@@ -227,7 +227,6 @@ class Client(object):
         if reply != PERMISSION_DENIED:
             return reply
         return BLANK
-
 
     @staticmethod
     def send_response_to_server(message, client_socket_ex):
