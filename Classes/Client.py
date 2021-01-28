@@ -216,6 +216,19 @@ class Client(object):
             return True
         return False
 
+    def ask_for_share(self, user_to_ask):
+        """
+        :param user_to_ask: the username of the wanted user.
+        :return: list of files of the user / 'permission denied' if doesnt allow
+        """
+        message = self.username + SEPERATOR + ASK_FOR_SHARE_BTN + SEPERATOR + user_to_ask
+        Client.send_request_to_server(self.my_socket, message)
+        reply = Client.read_server_response(self.my_socket)
+        if reply != PERMISSION_DENIED:
+            return reply
+        return BLANK
+
+
     @staticmethod
     def send_response_to_server(message, client_socket_ex):
         """
