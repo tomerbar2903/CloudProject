@@ -3,6 +3,7 @@ The panel where you enter your username and password (LOG IN \ SIGN UP)
 """
 
 
+import time
 from GeneralGUI import *
 from Folder_Manager import *
 from InitCloudGUI import InitCloudGUI

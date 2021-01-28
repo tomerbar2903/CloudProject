@@ -47,7 +47,6 @@ class MyHandler(FileSystemEventHandler):
                                                    MOVE_FILE + SEPERATOR +
                                                    self.client.without_cloud(
                                                        new_file))
-                self.client.client_reg.set_blup(ALLOW_BLUP)
             elif DOT not in new_file:
                 self.client.send_request_to_server(self.client.my_socket,
                                                    self.client.username +
@@ -68,7 +67,6 @@ class MyHandler(FileSystemEventHandler):
         if observer_check == ALLOW_OBS:
             if DOT in event.src_path and APPINFO not in event.src_path \
                     and format == CLOUD_FORMAT:
-                self.client.client_reg.set_blup(DENY_OBS)
                 self.client.send_request_to_server(
                     self.client.my_socket, self.client.username +
                                            SEPERATOR + DELETE_FILE + SEPERATOR +

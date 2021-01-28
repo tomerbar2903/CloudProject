@@ -124,13 +124,3 @@ class ReadRegistry(object):
         write_key = OpenKey(HKEY_LOCAL_MACHINE, CLIENT_REG, REG_CONST, KEY_WRITE)
         SetValueEx(write_key, OBSERVER, REG_CONST, REG_SZ, value)
         CloseKey(write_key)
-
-    @staticmethod
-    def set_blup(value):
-        """
-        :param value: Deny \ Allow
-        :return: changes the value
-        """
-        write_key = OpenKey(HKEY_LOCAL_MACHINE, CLIENT_REG, REG_CONST, KEY_WRITE)
-        SetValueEx(write_key, BLUP_REG, REG_CONST, REG_SZ, value)
-        CloseKey(write_key)

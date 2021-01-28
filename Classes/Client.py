@@ -36,7 +36,6 @@ class Client(object):
                 self.request = NO_COMMAND
                 reg_ip = ReadRegistry(SERVER_REG)  # client reading
                 self.client_reg = ReadRegistry(CLIENT_REG)  # client reading
-                self.client_reg.set_blup(ALLOW_BLUP)  # initiates
                 self.client_reg.set_observer(ALLOW_OBS)  # initiates
                 ip1, port1 = reg_ip.get_ip_port()
                 if ip is not None and port is not None:
@@ -252,10 +251,7 @@ class Client(object):
                 Client.delete_file(file_path)
                 Client.make_imaginary_file(file_path)
                 time.sleep(LONG_SLEEP)
-                print(self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, OBSERVER))
                 self.client_reg.set_observer(ALLOW_OBS)
-                # TODO - delete afterwards
-                print(self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, OBSERVER))
                 return Client.read_server_response(my_socket)
             else:
                 return FILE_ALREADY_IN_CLOUD
