@@ -139,6 +139,9 @@ class Server(object):
                 elif request.upper() == MOVE_DIR and \
                         len(params) == TWO_PARAMETER:
                     return True
+                elif request.upper() == GET_USERS and \
+                        len(params) == NO_PARAMETERS:
+                    return True
             return False
         except Exception as m:
             print("at check_client_request", m)
@@ -187,6 +190,7 @@ class Server(object):
         # thread setting
         num = self.clients
         self.clients += 1
+        ans = BLANK
         print("starting thread", num)
 
         try:
@@ -301,16 +305,33 @@ class Server(object):
                 os.rename(self.cloud + "\\" + username + "\\" + params[START],
                           self.cloud + "\\" + username + "\\" + params[SECOND])
                 return BLANK
+            elif request.upper() == GET_USERS:
+                return self.get_users()
             return False
         except Exception as m:
             print("at handle_client_request:", m)
+
+    def get_users(self):
+        """
+        :return: the list of the current usernames in database
+        """
+        try:
+            conn = sqlite3.connect(DATABASE)
+            cur = conn.cursor()
+            users_in_db = cur.execute(DB_COMMAND_USERS)
+            users = BLANK
+            for user in users_in_db:
+                users += user[START] + SEPERATOR
+            return users[:-len(SEPERATOR)]  # deletes the last separator
+        except Exception as m:
+            print("at check_log_in", m)
 
     def make_dir(self, dire):
         """
         :return: makes the directory in server
         """
         os.mkdir(self.cloud + dire)
-        return ""
+        return BLANK
 
     @staticmethod
     def check_log_in(username, pw):

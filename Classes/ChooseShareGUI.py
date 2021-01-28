@@ -4,7 +4,7 @@ GUI for asking other users for sharing allowance.
 
 
 from ButtonFrame2 import *
-from CONSTS import *
+from ShareGUI import *
 
 
 class ChooseShareGUI(ButtonFrame2):
@@ -33,4 +33,5 @@ class ChooseShareGUI(ButtonFrame2):
         :param e: event handler
         :return: shows list of my files to share
         """
-        pass
+        self.Close()
+        ShareGUI()

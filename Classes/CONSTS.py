@@ -1,7 +1,8 @@
 COMMANDS = ["UPLOAD_FILE", "BLUP", "DOWNLOAD_FILE",
             "DELETE_FILE", "DELETE_DIR", "MAKE_DIR",
             "NEW_USER", "LOG_IN", "MOVE_FILE", "MOVE_DIR",
-            "ASK_SHARE", "SHARE"]
+            "ASK_SHARE", "SHARE", "GET_USERS"]
+GET_USERS = "GET_USERS"
 PERMISSION_DENIED = "permission denied"
 MAKE_DIR = "MAKE_DIR"
 MOVE_DIR = "MOVE_DIR"
@@ -34,6 +35,7 @@ SUBMIT_BTN = "Submit"
 LONG_SLEEP = 3
 SYSTEM_REGISTER_PANEL_SIZE = (250, 225)
 INIT_CLOUD_GUI_SIZE = (300, 200)
+CHOOSE_USER_GUI_SIZE = (350, 250)
 USERNAME_STATIC = "Username"
 PASSWORD_STATIC = "Password"
 REGISTER_TITLE = "Register"
@@ -41,6 +43,8 @@ HOME_PAGE_TITLE = "Home"
 SHARE_BTN = "Share"
 SHARE_TITLE = "Share"
 CHOOSE_FILE_TO_SHARE = "Choose A File To Share"
+CHOOSE_USER_SHARE_STATIC = "Choose A User To Share The File With"
+CHOOSE_USER_SHARE_TITLE = "Choose A User"
 NEXT_BTN = "Next..."
 ASK_FOR_SHARE_BTN = "Ask For Share"
 SIGN_UP_BTN = "Sign Up"

@@ -3,8 +3,7 @@ The window where you share yourself
 """
 
 
-from GeneralGUI import *
-from CONSTS import *
+from ChooseUserGUI import *
 
 
 class ShareGUI(GeneralGUI):
@@ -47,5 +46,8 @@ class ShareGUI(GeneralGUI):
             self.Close()
             ShareGUI()
         else:
-            pass
-            # opens a window of list box with users
+            message = self.folder_manager.client.username + SEPERATOR + GET_USERS
+            self.folder_manager.client.send_request_to_server(self.folder_manager.client.my_socket, message)
+            users = self.folder_manager.client.read_server_response(self.folder_manager.client.my_socket).decode().split(SEPERATOR)
+            self.Close()
+            ChooseUserGUI(CHOOSE_USER_SHARE_TITLE, SHARE_BTN, users)
