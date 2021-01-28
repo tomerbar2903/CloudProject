@@ -6,6 +6,8 @@ The class for initiating the cloud path after sign up
 from ButtonFrame2 import *
 from CONSTS import *
 import subprocess
+import threading
+from ShareGUI import *
 
 
 CLIENT_PROGRAM_PATH = R'E:\\12\\Project\\Classes\\Folder_Manager.py'
@@ -35,21 +37,29 @@ class InitCloudGUI(GeneralGUI):
         :return: -
         """
         self.folder_manager.client.cloud = self.browser.GetPath()
+        self.Close()
         if self.folder_manager.client.cloud == BLANK:
             wx.MessageBox("You Must Choose A Folder To Continue!", 'Set-Up', wx.OK | wx.ICON_INFORMATION)
-            self.Close()
             self.folder_manager.client.my_socket.close()
             InitCloudGUI()
         f = self.folder_manager.client.initiate_cloud()
         if not f:
-            self.Close()
             self.folder_manager.client.my_socket.close()  # avoiding overflow
             InitCloudGUI()
         else:
             self.folder_manager.client.set_up()
-            subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
             wx.MessageBox("You Are All Set!", 'Set-Up', wx.OK | wx.ICON_INFORMATION)
-            self.Close()
+            client_thread = threading.Thread(
+                target=InitCloudGUI.run_client)
+            client_thread.start()
+            ShareGUI()
+
+    @staticmethod
+    def run_client():
+        """
+        :return: runs client in a thread
+        """
+        subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
 
     def browse(self):
         """

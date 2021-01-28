@@ -3,10 +3,11 @@ The panel where you enter your username and password (LOG IN \ SIGN UP)
 """
 
 
-import time
+import threading
 from GeneralGUI import *
 from Folder_Manager import *
 from InitCloudGUI import InitCloudGUI
+from ShareGUI import *
 import subprocess
 
 
@@ -46,7 +47,10 @@ class SystemRegisterGUI(GeneralGUI):
             r = self.folder_manager.client.user_login(username, password)
             if r:
                 wx.MessageBox('Logged In', 'Register', wx.OK | wx.ICON_INFORMATION)
-                subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
+                client_thread = threading.Thread(
+                    target=SystemRegisterGUI.run_client)
+                client_thread.start()
+                ShareGUI()
             else:
                 wx.MessageBox('Username or Password Are Incorrect', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
@@ -61,6 +65,13 @@ class SystemRegisterGUI(GeneralGUI):
                 wx.MessageBox('Username Already Exists', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
                 SystemRegisterGUI(None, self.mode)  # Opens up a new window
+
+    @staticmethod
+    def run_client():
+        """
+        :return: runs client in a thread
+        """
+        subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
 
     def positions(self):
         """

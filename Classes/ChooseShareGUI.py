@@ -12,11 +12,11 @@ class ChooseShareGUI(ButtonFrame2):
     ask to have permission to take files from other
     users.
     """
-    def __init__(self, e,):
+    def __init__(self):
         """
         :param e: event handler
         """
-        super().__init__(e, HOME_PAGE_TITLE, HOME_PAGE_TITLE,
+        super().__init__(None, HOME_PAGE_TITLE, HOME_PAGE_TITLE,
                          ASK_FOR_SHARE_BTN, SHARE_BTN,
                          SYSTEM_REGISTER_PANEL_SIZE)
 

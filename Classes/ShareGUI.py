@@ -11,16 +11,16 @@ class ShareGUI(GeneralGUI):
     """
     opens a window with directory dialog and a Next button
     """
-    def __init__(self, e):
+    def __init__(self):
         """
         :param e: event handler
         """
-        super().__init__(e, SHARE_TITLE, INIT_CLOUD_GUI_SIZE)
+        super().__init__(None, SHARE_TITLE, INIT_CLOUD_GUI_SIZE)
         self.file_to_share = None
         self.static_txt = wx.StaticText(self.pnl, label=CHOOSE_FILE_TO_SHARE)
         self.next_btn = wx.Button(self.pnl, label=NEXT_BTN)
         self.next_btn.Bind(wx.EVT_BUTTON, self.on_next)
-        self.browser = wx.DirPickerCtrl()
+        self.browser = wx.FilePickerCtrl()
         self.browser.Create(self.pnl, path=self.folder_manager.client.cloud, pos=wx.DefaultPosition, size=wx.DefaultSize,
                             style=wx.DIRP_DEFAULT_STYLE, name=wx.DirPickerCtrlNameStr)
         self.position()
@@ -49,8 +49,3 @@ class ShareGUI(GeneralGUI):
         else:
             pass
             # opens a window of list box with users
-
-
-w = wx.App()
-ShareGUI(None)
-w.MainLoop()
