@@ -8,6 +8,7 @@ from CONSTS import *
 import subprocess
 import threading
 from ShareGUI import *
+from ChooseShareGUI import *
 
 
 CLIENT_PROGRAM_PATH = R'E:\\12\\Project\\Classes\\Folder_Manager.py'
@@ -17,12 +18,13 @@ class InitCloudGUI(GeneralGUI):
     """
     creating the panel
     """
-    def __init__(self):
+    def __init__(self, username):
         """
         initiating the panel
         """
         super().__init__(None, SELECT_DIRECTORY, INIT_CLOUD_GUI_SIZE)
         self.browser = None
+        self.folder_manager.client.username = username
         self.static_txt = wx.StaticText(self.pnl, label=CHOOSE_YOUR_CLOUD_STATIC)
         self.submit_btn = wx.Button(self.pnl, label=SUBMIT_BTN)
         self.submit_btn.Bind(wx.EVT_BUTTON, self.on_submit)
@@ -41,18 +43,18 @@ class InitCloudGUI(GeneralGUI):
         if self.folder_manager.client.cloud == BLANK:
             wx.MessageBox("You Must Choose A Folder To Continue!", 'Set-Up', wx.OK | wx.ICON_INFORMATION)
             self.folder_manager.client.my_socket.close()
-            InitCloudGUI()
+            InitCloudGUI(self.folder_manager.client.username)
         f = self.folder_manager.client.initiate_cloud()
         if not f:
             self.folder_manager.client.my_socket.close()  # avoiding overflow
-            InitCloudGUI()
+            InitCloudGUI(self.folder_manager.client.username)
         else:
             self.folder_manager.client.set_up()
             wx.MessageBox("You Are All Set!", 'Set-Up', wx.OK | wx.ICON_INFORMATION)
             client_thread = threading.Thread(
                 target=InitCloudGUI.run_client)
             client_thread.start()
-            ShareGUI()
+            ChooseShareGUI()
 
     @staticmethod
     def run_client():

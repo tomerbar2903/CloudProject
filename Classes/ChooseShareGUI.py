@@ -19,6 +19,7 @@ class ChooseShareGUI(ButtonFrame2):
         super().__init__(None, HOME_PAGE_TITLE, HOME_PAGE_TITLE,
                          ASK_FOR_SHARE_BTN, SHARE_BTN,
                          SYSTEM_REGISTER_PANEL_SIZE)
+        self.btn2.Bind(wx.EVT_BUTTON, self.on_share)
 
     def on_ask(self, e):
         """

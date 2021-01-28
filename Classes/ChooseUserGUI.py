@@ -28,9 +28,9 @@ class ChooseUserGUI(GeneralGUI):
         """
         :return: positions everything nicely
         """
-        self.btn_list_sizer.Add(window=self.user_listbox, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
-        self.btn_list_sizer.Add(window=self.btn, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
-        self.txt_sizer.Add(window=self.choose_static, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
-        self.sizer.Add(self.txt_sizer, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
-        self.sizer.Add(self.btn_list_sizer, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_LARGE)
+        self.btn_list_sizer.Add(window=self.user_listbox, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
+        self.btn_list_sizer.Add(window=self.btn, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
+        self.txt_sizer.Add(window=self.choose_static, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
+        self.sizer.Add(self.txt_sizer, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
+        self.sizer.Add(self.btn_list_sizer, proportion=PROPORTION, flag=wx.ALL | wx.CENTER, border=BORDER_SMALL)
         self.SetSizer(self.sizer)

@@ -7,6 +7,7 @@ import threading
 from GeneralGUI import *
 from Folder_Manager import *
 from InitCloudGUI import InitCloudGUI
+from ChooseShareGUI import *
 from ShareGUI import *
 import subprocess
 
@@ -44,23 +45,25 @@ class SystemRegisterGUI(GeneralGUI):
         password = self.password_txt.GetLineText(0)
         self.Close()
         if self.mode == LOG_IN_BTN:
-            r = self.folder_manager.client.user_login(username, password)
+            r = self.folder_manager.client.user_login(username,
+                                                      password)
             if r:
                 wx.MessageBox('Logged In', 'Register', wx.OK | wx.ICON_INFORMATION)
                 client_thread = threading.Thread(
                     target=SystemRegisterGUI.run_client)
                 client_thread.start()
-                ShareGUI()
+                ChooseShareGUI()
             else:
                 wx.MessageBox('Username or Password Are Incorrect', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
                 SystemRegisterGUI(None, self.mode)  # Opens up a new window
-        if self.mode == SIGN_UP_BTN:
-            r = self.folder_manager.client.user_setup(username, password)
+        elif self.mode == SIGN_UP_BTN:
+            r = self.folder_manager.client.user_setup(username,
+                                                      password)
             if r:
                 wx.MessageBox('New Account Is Ready To Go!', 'Register', wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow
-                InitCloudGUI()
+                InitCloudGUI(username)
             else:
                 wx.MessageBox('Username Already Exists', "Register", wx.OK | wx.ICON_INFORMATION)
                 self.folder_manager.client.my_socket.close()  # avoiding overflow

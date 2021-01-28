@@ -4,6 +4,7 @@ The window where you share yourself
 
 
 from ChooseUserGUI import *
+from ReadRegistry import *
 
 
 class ShareGUI(GeneralGUI):
@@ -15,6 +16,8 @@ class ShareGUI(GeneralGUI):
         :param e: event handler
         """
         super().__init__(None, SHARE_TITLE, INIT_CLOUD_GUI_SIZE)
+        self.reg = ReadRegistry(CLIENT_PATH)
+        self.username = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG)
         self.file_to_share = None
         self.static_txt = wx.StaticText(self.pnl, label=CHOOSE_FILE_TO_SHARE)
         self.next_btn = wx.Button(self.pnl, label=NEXT_BTN)
@@ -46,7 +49,7 @@ class ShareGUI(GeneralGUI):
             self.Close()
             ShareGUI()
         else:
-            message = self.folder_manager.client.username + SEPERATOR + GET_USERS
+            message = self.username + SEPERATOR + GET_USERS
             self.folder_manager.client.send_request_to_server(self.folder_manager.client.my_socket, message)
             users = self.folder_manager.client.read_server_response(self.folder_manager.client.my_socket).decode().split(SEPERATOR)
             self.Close()

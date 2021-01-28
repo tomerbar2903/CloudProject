@@ -306,12 +306,12 @@ class Server(object):
                           self.cloud + "\\" + username + "\\" + params[SECOND])
                 return BLANK
             elif request.upper() == GET_USERS:
-                return self.get_users()
+                return self.get_users(username)
             return False
         except Exception as m:
             print("at handle_client_request:", m)
 
-    def get_users(self):
+    def get_users(self, username):
         """
         :return: the list of the current usernames in database
         """
@@ -321,7 +321,8 @@ class Server(object):
             users_in_db = cur.execute(DB_COMMAND_USERS)
             users = BLANK
             for user in users_in_db:
-                users += user[START] + SEPERATOR
+                if username != user[START]:
+                    users += user[START] + SEPERATOR
             return users[:-len(SEPERATOR)]  # deletes the last separator
         except Exception as m:
             print("at check_log_in", m)
