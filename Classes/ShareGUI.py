@@ -49,8 +49,5 @@ class ShareGUI(GeneralGUI):
             self.Close()
             ShareGUI()
         else:
-            message = self.username + SEPERATOR + GET_USERS
-            self.folder_manager.client.send_request_to_server(self.folder_manager.client.my_socket, message)
-            users = self.folder_manager.client.read_server_response(self.folder_manager.client.my_socket).decode().split(SEPERATOR)
             self.Close()
-            ChooseUserGUI(CHOOSE_USER_SHARE_TITLE, SHARE_BTN, users)
+            ChooseUserGUI(CHOOSE_USER_SHARE_TITLE, SHARE_BTN, [self.file_to_share])

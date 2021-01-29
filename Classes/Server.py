@@ -142,6 +142,9 @@ class Server(object):
                 elif request.upper() == GET_USERS and \
                         len(params) == NO_PARAMETERS:
                     return True
+                elif request.upper() == SHARE and \
+                        len(params) == TWO_PARAMETER:
+                    return True
             return False
         except Exception as m:
             print("at check_client_request", m)
@@ -307,6 +310,10 @@ class Server(object):
                 return BLANK
             elif request.upper() == GET_USERS:
                 return self.get_users(username)
+            elif request.upper() == SHARE:
+                pass
+                # TODO - SHARING ALGORITHM
+                return MESSAGE_SENT  # TODO - delete afterwards
             return False
         except Exception as m:
             print("at handle_client_request:", m)
@@ -376,8 +383,8 @@ class Server(object):
         if ok:
             return USERNAME_EXISTS
         else:
-            p_and_u = [username, password]
-            query = "INSERT INTO users(username, password) values (?, ?)"
+            p_and_u = [username, password, NO_REQUEST_DB]
+            query = "INSERT INTO users(username, password) values (?, ?, ?)"
             cur.execute(query, p_and_u)
             conn.commit()
             os.mkdir(self.cloud + "\\" + username)

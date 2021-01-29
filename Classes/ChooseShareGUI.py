@@ -20,14 +20,14 @@ class ChooseShareGUI(ButtonFrame2):
                          ASK_FOR_SHARE_BTN, SHARE_BTN,
                          SYSTEM_REGISTER_PANEL_SIZE)
         self.btn2.Bind(wx.EVT_BUTTON, self.on_share)
+        self.btn1.Bind(wx.EVT_BUTTON, self.on_ask)
 
     def on_ask(self, e):
         """
         :param e: event handler
         :return: show list of users in new GUI
         """
-        pass
-        # window of list box
+
 
     def on_share(self, e):
         """
