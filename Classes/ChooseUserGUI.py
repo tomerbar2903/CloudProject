@@ -52,7 +52,6 @@ class ChooseUserGUI(GeneralGUI):
         self.client.send_request_to_server(self.client.my_socket, message)
         users = self.client.read_server_response(self.client.my_socket).decode().split(
             SEPERATOR)
-        self.Close()
         return users
 
     def on_share(self):

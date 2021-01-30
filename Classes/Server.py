@@ -362,7 +362,7 @@ class Server(object):
             if ok:
                 return FINE
             else:
-                return SOMETHING_WENT_WRONG
+                return USERNAME_DOESNT_EXIST
             conn.close()
         except Exception as m:
             print("at check_log_in", m)

@@ -102,15 +102,15 @@ class Client(object):
             SEPERATOR + LOG_IN + SEPERATOR +
             username + SEPERATOR + password)
         reply = Client.read_server_response(self.my_socket)
-        if reply.decode() == INCORRECT_PASSWORD:
-            return False
+        if reply.decode() != FINE:
+            return reply.decode()
         self.username = username
         self.password = password
         ReadRegistry.set_registry(
             HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG, self.username)
         ReadRegistry.set_registry(
             HKEY_LOCAL_MACHINE, CLIENT_REG, PASSWORD_REG, self.password)
-        return True
+        return FINE
 
     def set_up(self):
         """

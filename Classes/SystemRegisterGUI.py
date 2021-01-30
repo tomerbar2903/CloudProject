@@ -47,14 +47,14 @@ class SystemRegisterGUI(GeneralGUI):
         if self.mode == LOG_IN_BTN:
             r = self.client.user_login(username,
                                        password)
-            if r:
+            if r == FINE:
                 wx.MessageBox('Logged In', 'Register', wx.OK | wx.ICON_INFORMATION)
                 client_thread = threading.Thread(
                     target=SystemRegisterGUI.run_client)
                 client_thread.start()
                 ChooseShareGUI(self.client)
             else:
-                wx.MessageBox('Username or Password Are Incorrect', "Register", wx.OK | wx.ICON_INFORMATION)
+                wx.MessageBox(r, "Register", wx.OK | wx.ICON_INFORMATION)
                 SystemRegisterGUI(self.mode, self.client)  # Opens up a new window
         elif self.mode == SIGN_UP_BTN:
             r = self.client.user_setup(username,
