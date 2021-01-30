@@ -11,14 +11,13 @@ ICON_PATH = r"E:\12\Project\cloud_icon (1).ico"
 
 
 class GeneralGUI(wx.Frame):
-    def __init__(self, e, title, size):
+    def __init__(self, e, title, size, client):
         """
         initiates the app
         """
         super().__init__(e, title=title, size=size)
         # CREATING PANEL
-
-        self.folder_manager = MyHandler(CLIENT_MODE)
+        self.client = client
         self.pnl = self.panel()
         self.InitUI()
         icon = wx.Icon(ICON_PATH, wx.BITMAP_TYPE_ICO)

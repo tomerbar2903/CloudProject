@@ -10,8 +10,9 @@ def main():
     """
     runs GUI
     """
+    c = MyHandler(CLIENT_MODE)
     app = wx.App()
-    RegisterGUI()
+    RegisterGUI(c.client)
     app.MainLoop()
 
 

@@ -11,12 +11,12 @@ class RegisterGUI(ButtonFrame2):
     """
     initiates window
     """
-    def __init__(self):
+    def __init__(self, client):
         """
         initiates the panel - title and buttons
         """
         super().__init__(None, REGISTER_TITLE, SELECT,
-                         SIGN_UP_BTN, LOG_IN_BTN, SIGN_IN_PANEL_SIZE)
+                         SIGN_UP_BTN, LOG_IN_BTN, SIGN_IN_PANEL_SIZE, client)
         self.bind_buttons()
         self.Show()
 
@@ -33,9 +33,7 @@ class RegisterGUI(ButtonFrame2):
         window of registering
         """
         self.Close()
-        self.folder_manager.client.my_socket.close()  # avoiding overflow
-        log_in_panel = SystemRegisterGUI(None, LOG_IN_BTN)
-        log_in_panel.Show()
+        SystemRegisterGUI(LOG_IN_BTN, self.client)
 
     def open_sign_up(self, e):
         """
@@ -43,6 +41,4 @@ class RegisterGUI(ButtonFrame2):
         window of registering
         """
         self.Close()
-        self.folder_manager.client.my_socket.close()  # avoiding overflow
-        sign_up_panel = SystemRegisterGUI(None, SIGN_UP_BTN)
-        sign_up_panel.Show()
+        SystemRegisterGUI(SIGN_UP_BTN, self.client)

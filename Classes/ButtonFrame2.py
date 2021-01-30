@@ -7,11 +7,11 @@ from CONSTS import *
 
 
 class ButtonFrame2(GeneralGUI):
-    def __init__(self, e, frame_title, static_txt, b1_title, b2_title, size):
+    def __init__(self, e, frame_title, static_txt, b1_title, b2_title, size, client):
         """
         initiates frame
         """
-        super().__init__(e, frame_title, size)
+        super().__init__(e, frame_title, size, client)
         self.t1 = wx.StaticText(self.pnl, label=static_txt)
         self.btn1, self.btn2 = self.init_buttons(b1_title, b2_title)
         self.h_sizer = wx.BoxSizer()

@@ -12,13 +12,13 @@ class ChooseShareGUI(ButtonFrame2):
     ask to have permission to take files from other
     users.
     """
-    def __init__(self):
+    def __init__(self, client):
         """
         :param e: event handler
         """
         super().__init__(None, HOME_PAGE_TITLE, HOME_PAGE_TITLE,
                          ASK_FOR_SHARE_BTN, SHARE_BTN,
-                         SYSTEM_REGISTER_PANEL_SIZE)
+                         SYSTEM_REGISTER_PANEL_SIZE, client)
         self.btn2.Bind(wx.EVT_BUTTON, self.on_share)
         self.btn1.Bind(wx.EVT_BUTTON, self.on_ask)
 
@@ -27,7 +27,7 @@ class ChooseShareGUI(ButtonFrame2):
         :param e: event handler
         :return: show list of users in new GUI
         """
-
+        pass
 
     def on_share(self, e):
         """
@@ -35,4 +35,4 @@ class ChooseShareGUI(ButtonFrame2):
         :return: shows list of my files to share
         """
         self.Close()
-        ShareGUI()
+        ShareGUI(self.client)

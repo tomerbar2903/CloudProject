@@ -61,8 +61,8 @@ class Client(object):
                     socket.AF_INET, socket.SOCK_STREAM)
                 # connect to server
                 self.my_socket.connect((self.ip, self.port))
-        except socket.error as msg:
-            print("Connection failure: %request\n termination program" % msg)
+        except Exception as msg:
+            print("at constructor Client", msg)
 
     def initiate_cloud(self):
         """
@@ -99,8 +99,8 @@ class Client(object):
         """
         self.send_request_to_server(
             self.my_socket, self.username +
-                            SEPERATOR + LOG_IN + SEPERATOR +
-                            username + SEPERATOR + password)
+            SEPERATOR + LOG_IN + SEPERATOR +
+            username + SEPERATOR + password)
         reply = Client.read_server_response(self.my_socket)
         if reply.decode() == INCORRECT_PASSWORD:
             return False
@@ -139,7 +139,7 @@ class Client(object):
             ans = self.read_server_response(self.my_socket)
             while not ans.decode() == READY:
                 time.sleep(SHORT_SLEEP)
-                print(ans)
+                print("%s LOADING...." % file)
                 ans = self.read_server_response(self.my_socket)
             self.upload(file, self.my_socket)
 

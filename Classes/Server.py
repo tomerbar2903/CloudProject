@@ -47,8 +47,8 @@ class Server(object):
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.bind((self.ip, self.port))
 
-            # can listen to only 1 client at a time
-            server_socket.listen(1)
+            # can listen to only 10 clients at a time
+            server_socket.listen(10)
             return server_socket
         except Exception as msg:
             print("at initiate_server_socket:", msg)
