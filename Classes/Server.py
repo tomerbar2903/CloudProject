@@ -383,8 +383,8 @@ class Server(object):
         if ok:
             return USERNAME_EXISTS
         else:
-            p_and_u = [username, password, NO_REQUEST_DB]
-            query = "INSERT INTO users(username, password) values (?, ?, ?)"
+            p_and_u = [username, password]
+            query = "INSERT INTO users(username, password) values (?, ?)"
             cur.execute(query, p_and_u)
             conn.commit()
             os.mkdir(self.cloud + "\\" + username)
