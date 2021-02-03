@@ -1,6 +1,9 @@
 import socket
+import threading
 import time
 import os
+import win32ui
+import win32con
 from File import *
 from ReadRegistry import *
 
@@ -26,6 +29,9 @@ class Client(object):
                     self.ip = ip1
                     self.port = port1
                 self.request = NO_COMMAND
+                self.req_socket = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+                self.req_socket.connect((self.ip, self.port))
                 self.my_socket = socket.socket(
                     socket.AF_INET, socket.SOCK_STREAM)
                 # connect to server
@@ -61,8 +67,73 @@ class Client(object):
                     socket.AF_INET, socket.SOCK_STREAM)
                 # connect to server
                 self.my_socket.connect((self.ip, self.port))
+                self.req_socket = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+                self.req_socket.connect((self.ip, self.port))
         except Exception as msg:
             print("at constructor Client", msg)
+
+    def initiate_listen(self):
+        """
+        :return: sends the server an hello command
+        """
+        message = self.username + SEPERATOR + REQ_SOCK_COMMAND
+        self.send_request_to_server(self.req_socket, message)
+        receive_requests = threading.Thread(target=self.recieving_requests)
+        receive_requests.start()
+
+    def recieving_requests(self):
+        """
+        :return: recieveing requests and handles them
+        """
+        while True:
+            request_length = self.req_socket.recv(BYTE).decode()
+            if request_length.isdigit():
+                request = self.req_socket.recv(int(request_length)).decode()
+                req_and_prms = request.split(SEPERATOR)
+                from_user = BLANK
+                command = BLANK
+                params = []
+                if len(req_and_prms) > TWO_PARAMETER:
+                    print("p1")
+                    from_user = req_and_prms.pop(START)
+                    print("from user", from_user)
+                    command = req_and_prms.pop(START)
+                    print("command", command)
+                    params = req_and_prms
+                    print("params", params)
+                self.handle_server_request(from_user, command, params)
+
+    def handle_server_request(self, from_user, command, params):
+        """
+        :return: handles request
+        """
+        if command in COMMANDS:
+            print("here")
+            if command == SHARE and \
+                    len(params) == ONE_PARAMETER:
+                file = File(params[START])
+                print("here2")
+                real_file = file.get_name() + DOT + file.get_format()
+                print("here3")
+                file_name = File(real_file).name + DOT + File(real_file).format
+                message = from_user + " Wanted to send " + file_name
+                print(message)
+                if win32ui.MessageBox("Request Was Just Sent You", message, win32con.MB_YESNOCANCEL) == win32con.IDYES:
+                    print("doesnt work message box")
+                    message_for_server = self.username + SEPERATOR + COPY_FILE + SEPERATOR + from_user + SEPERATOR\
+                                         + self.without_cloud(file.path)
+                    Client.send_request_to_server(self.my_socket, message_for_server)
+                    self.client_reg.set_observer(DENY_OBS)
+                    file_to_save = file.make_new_file_path(self.cloud)
+                    Client.make_imaginary_file(file_to_save)
+                    time.sleep(SHORT_SLEEP)
+                    self.client_reg.set_observer(ALLOW_OBS)
+                    print("file shared")
+                else:
+                    print("doesnt work")
+                    pass
+                    # TODO - send server that request is not allowed
 
     def initiate_cloud(self):
         """
@@ -90,7 +161,6 @@ class Client(object):
                 HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG, self.username)
             ReadRegistry.set_registry(
                 HKEY_LOCAL_MACHINE, CLIENT_REG, PASSWORD_REG, self.password)
-            return True
         return True
 
     def user_login(self, username, password):

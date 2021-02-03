@@ -51,7 +51,7 @@ class InitCloudGUI(GeneralGUI):
             client_thread = threading.Thread(
                 target=InitCloudGUI.run_client)
             client_thread.start()
-            ChooseShareGUI(self.client)
+            ChooseShareGUI(self.client.username, self.client)
 
     @staticmethod
     def run_client():

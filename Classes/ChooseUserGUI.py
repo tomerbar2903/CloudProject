@@ -3,8 +3,7 @@ GUI window with a list box to choose a user to share / ask for share
 """
 
 
-from GeneralGUI import *
-from ReadRegistry import *
+from ChooseShareGUI import *
 
 
 class ChooseUserGUI(GeneralGUI):
@@ -54,21 +53,26 @@ class ChooseUserGUI(GeneralGUI):
             SEPERATOR)
         return users
 
-    def on_share(self):
+    def on_share(self, e):
         """
         :return: sends server a message according to mode
         """
         user_to_share = self.user_listbox.GetStringSelection()
-        if self.mode == SHARE_MODE:
-            message = self.client.username + SEPERATOR + SHARE + SEPERATOR + user_to_share + \
-                      SEPERATOR + self.args[START]
-            self.client.send_request_to_server(message)
-            reply = self.client.read_server_response(self.client.my_socket)
-            if reply == MESSAGE_SENT:
-                message_txt = "File Shared With %s" % user_to_share
-                wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
-            else:
-                message_txt = "Error At Sharing With %s" % user_to_share
-                wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
-                self.Close()
-                ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)
+        if user_to_share != BLANK:
+            if self.mode == SHARE_MODE:
+                message = self.client.username + SEPERATOR + SHARE + SEPERATOR + user_to_share + \
+                          SEPERATOR + self.client.without_cloud(self.args[START])
+                self.client.send_request_to_server(self.client.my_socket, message)
+                reply = self.client.read_server_response(self.client.my_socket)
+                if reply.decode() == MESSAGE_SENT:
+                    message_txt = "File Shared With %s" % user_to_share
+                    wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
+                    self.Close()
+                    ChooseShareGUI(self.client.username, self.client)
+                else:
+                    message_txt = "Error At Sharing With %s" % user_to_share
+                    wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
+                    self.Close()
+                    ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)
+        else:
+            ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)

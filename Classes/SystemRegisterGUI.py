@@ -52,7 +52,7 @@ class SystemRegisterGUI(GeneralGUI):
                 client_thread = threading.Thread(
                     target=SystemRegisterGUI.run_client)
                 client_thread.start()
-                ChooseShareGUI(self.client)
+                ChooseShareGUI(self.client.username, self.client)
             else:
                 wx.MessageBox(r, "Register", wx.OK | wx.ICON_INFORMATION)
                 SystemRegisterGUI(self.mode, self.client)  # Opens up a new window

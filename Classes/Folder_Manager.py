@@ -120,6 +120,7 @@ class MyHandler(FileSystemEventHandler):
 if __name__ == "__main__":
     mode = sys.argv[SECOND]
     event_handler = MyHandler(mode)
+    event_handler.client.initiate_listen()
     observer = Observer()
     observer.schedule(
         event_handler, path=event_handler.get_working_dir(),

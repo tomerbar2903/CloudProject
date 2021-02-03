@@ -21,6 +21,7 @@ class Server(object):
         :param port: port
         """
         try:
+            self.sock_dict = {}
             self.ip = ip
             self.port = port
             reg = ReadRegistry(SERVER_REG)  # server reading
@@ -145,6 +146,12 @@ class Server(object):
                 elif request.upper() == SHARE and \
                         len(params) == TWO_PARAMETER:
                     return True
+                elif request.upper() == REQ_SOCK_COMMAND and \
+                        len(params) == NO_PARAMETERS:
+                    return True
+                elif request.upper() == COPY_FILE and \
+                        len(params) == TWO_PARAMETER:
+                    return True
             return False
         except Exception as m:
             print("at check_client_request", m)
@@ -247,6 +254,10 @@ class Server(object):
                         # sends the original file path
                         answer = self.handle_client_request(
                             username2, request2, params2)
+                    elif answer == GET_OUT:
+                        self.sock_dict[username] = client_socket
+                        self.clients -= ADDER
+                        done2 = True
                 else:
                     # if the client entered something not from the protocol
                     if type(ok) == bool:
@@ -257,7 +268,7 @@ class Server(object):
                     else:
                         answer = ok
                 # sends the general message to the client
-                if answer is not None:
+                if answer is not None and answer != GET_OUT:
                     Server.send_response_to_client(answer, client_socket)
         except socket.error as msg:
             print("A client has left or app finished", msg)
@@ -312,11 +323,87 @@ class Server(object):
                 return self.get_users(username)
             elif request.upper() == SHARE:
                 pass
-                # TODO - SHARING ALGORITHM
-                return MESSAGE_SENT  # TODO - delete afterwards
+                to_socket = self.get_socket(params[START])
+                if to_socket == ERROR_FORMAT:
+                    Server.add_request_to_database(username, params[START], username + SEPERATOR + SHARE + SEPERATOR + params[SECOND])
+                reply = self.send_share_to_socket(to_socket, username, params)
+                return reply
+            elif request.upper() == REQ_SOCK_COMMAND:
+                return GET_OUT
+            elif request.upper() == COPY_FILE:
+                self.copy_file(params[SECOND], username, params[START])
+                return BLANK
             return False
         except Exception as m:
             print("at handle_client_request:", m)
+
+    def copy_file(self, sender_path, from_user, username):
+        """
+        :param sender_path: the path of the file in the client's computer
+        :param from_user: the username that sent the send command
+        :param username: the user that gets the file and allowed it
+        :return: file copied
+        """
+        path = self.cloud + "\\" + from_user + sender_path
+        to_paste = self.cloud + "\\" + username
+        shutil.copy2(path, to_paste)
+
+    def send_share_to_socket(self, sock, username, params):
+        """
+        :param sock: to socket
+        :param params: the username to send to + file to share
+        :return: True - sent False- added to database
+        """
+        try:
+            from_user = username
+            file = params[SECOND]
+            real_file = self.find_file(from_user, file)
+            message = from_user + SEPERATOR + SHARE + SEPERATOR + real_file
+            message_length = len(message.encode())
+            good_length = str(message_length).zfill(BYTE).encode()
+            sock.send(good_length + message.encode())
+            return MESSAGE_SENT
+        except socket.error:
+            return USER_OFFLINE
+
+    @staticmethod
+    def get_id(username):
+        """
+        :param username: gets id out of database
+        :return: id
+        """
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        users = cur.execute(DB_COMMAND_USERS)
+        user_id = NOT_FOUND
+        for user in users:
+            if user[START] == username:
+                user_id = user[THIRD]
+        return int(user_id)
+
+    @staticmethod
+    def add_request_to_database(user_from, user_to, request):
+        """
+        :param request: the request itself
+        :return: adds the request to request database
+        """
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        values = [Server.get_id(user_from), Server.get_id(user_to), request]
+        query = "INSERT INTO requests(id_from, id_to, request) values (?, ?, ?)"
+        cur.execute(query, values)
+        conn.commit()
+        conn.close()
+        return USER_ADDED
+
+    def get_socket(self, username):
+        """
+        :return: gets the socket of the username
+        """
+        for user in self.sock_dict.keys():
+            if user == username:
+                return self.sock_dict[user]
+        return ERROR_FORMAT
 
     def get_users(self, username):
         """
@@ -358,12 +445,14 @@ class Server(object):
                     if user[SECOND] == str(pw):
                         ok = True
                     else:
+                        conn.close()
                         return INCORRECT_PASSWORD
             if ok:
+                conn.close()
                 return FINE
             else:
+                conn.close()
                 return USERNAME_DOESNT_EXIST
-            conn.close()
         except Exception as m:
             print("at check_log_in", m)
 
@@ -381,6 +470,7 @@ class Server(object):
             if user[START] == username:
                 ok = True
         if ok:
+            conn.close()
             return USERNAME_EXISTS
         else:
             p_and_u = [username, password]

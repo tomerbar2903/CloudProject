@@ -1,7 +1,8 @@
 COMMANDS = ["UPLOAD_FILE", "BLUP", "DOWNLOAD_FILE",
             "DELETE_FILE", "DELETE_DIR", "MAKE_DIR",
             "NEW_USER", "LOG_IN", "MOVE_FILE", "MOVE_DIR",
-            "ASK_SHARE", "SHARE", "GET_USERS"]
+            "ASK_SHARE", "SHARE", "GET_USERS", "HI THERE CLOUD!", "COPY_FILE"]
+COPY_FILE = "COPY_FILE"
 SHARE = "SHARE"
 GET_USERS = "GET_USERS"
 PERMISSION_DENIED = "permission denied"
@@ -11,6 +12,8 @@ RE_UPLOAD_FILE = "RE_UPLOAD_FILE"
 NEW_USER = "NEW_USER"
 MOVE_FILE = "MOVE_FILE"
 LOG_IN = "LOG_IN"
+GET_OUT = "GET_OUT"
+USER_OFFLINE = "User Offline"
 SOMETHING_WENT_WRONG = "something went wrong"
 NO_USER = "NO_USER"
 INCORRECT_PASSWORD = "password incorrect"
@@ -20,7 +23,6 @@ SHORT_SLEEP = 1
 ERROR_FORMAT = "error"
 FINE = "logged in"
 WAIT = "WAIT"
-SEPERATOR = " $$$ "
 SEPERATOR = " $$$ "
 STARTER = 1
 GUI_INIT = -1
@@ -79,6 +81,7 @@ APP_MODE = '0'
 CLIENT_MODE = '1'
 SIGNUP = "SIGNUP"
 APPINFO = "\\AppInfo"
+REQ_SOCK_COMMAND = "HI THERE CLOUD!"
 NO_CLOUD = ""
 DOT = '.'
 NO_COMMAND = "BLUP"
@@ -95,6 +98,7 @@ PORT_COMMAND = "PORT"
 FILE_DOESNT_EXIST = "file doesn't exist"
 FILE_END = b'NO_MORE'
 FILE_SENT = 'file uploaded successfully !!!'
+FILE_SHARED = "File shared!"
 MSG_FILL = 4
 NO_PARAMETERS = 0
 ONE_PARAMETER = 1
@@ -124,6 +128,8 @@ QUIT_APP = 'Quit Application'
 MENU_GUI = 'Menu&'
 NONE_VALID = "you entered a non valid value"
 DB_COMMAND_USERS = "select * from users"
+NOT_FOUND = 0
+THIRD = 2
 DB_COMMAND_USERNAME = "select username from users"
 OK = "ok"
 BYE = "bye"

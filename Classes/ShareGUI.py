@@ -4,6 +4,7 @@ The window where you share yourself
 
 
 from ChooseUserGUI import *
+from GeneralGUI import *
 from ReadRegistry import *
 import os
 

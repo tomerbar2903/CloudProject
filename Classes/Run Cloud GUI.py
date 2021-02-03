@@ -4,6 +4,7 @@ runs the GUI program of registering
 
 
 from RegisterPanel import *
+from SystemRegisterGUI import *
 
 
 def main():
