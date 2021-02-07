@@ -116,6 +116,16 @@ class ReadRegistry(object):
         CloseKey(write_key)
 
     @staticmethod
+    def set_delete_flag(value):
+        """
+        :param value: the last file to be deleted
+        :return: -
+        """
+        write_key = OpenKey(HKEY_LOCAL_MACHINE, CLIENT_REG, REG_CONST, KEY_WRITE)
+        SetValueEx(write_key, DELETE_FLAG_REG, REG_CONST, REG_SZ, value)
+        CloseKey(write_key)
+
+    @staticmethod
     def set_observer(value):
         """
         :param value: Deny \ Allow

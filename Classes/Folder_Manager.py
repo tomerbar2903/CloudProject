@@ -28,7 +28,10 @@ class MyHandler(FileSystemEventHandler):
         new_file = event.src_path
         observer_check = self.reg.read_registry(HKEY_LOCAL_MACHINE,
                                                 CLIENT_REG, OBSERVER)
+        last_deleted = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, DELETE_FLAG_REG)
         if observer_check == ALLOW_OBS:
+            if last_deleted != File(new_file).name:
+                new_file = File.validate_file(new_file)
             if Client.valid_file(new_file) and \
                     File(new_file).get_format() != CLOUD_FORMAT and \
                     APPINFO not in new_file:
@@ -71,6 +74,7 @@ class MyHandler(FileSystemEventHandler):
                     self.client.my_socket, self.client.username +
                                            SEPERATOR + DELETE_FILE + SEPERATOR +
                                            self.client.without_cloud(event.src_path))
+                self.reg.set_delete_flag(File(event.src_path).name)
 
     def on_moved(self, event):
         """

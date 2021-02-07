@@ -109,27 +109,24 @@ class Client(object):
         :return: handles request
         """
         if command in COMMANDS:
-            print("here")
             if command == SHARE and \
                     len(params) == ONE_PARAMETER:
+                self.client_reg.set_observer(DENY_OBS)
                 file = File(params[START])
-                print("here2")
                 real_file = file.get_name() + DOT + file.get_format()
-                print("here3")
                 file_name = File(real_file).name + DOT + File(real_file).format
-                message = from_user + " Wanted to send " + file_name
-                print(message)
-                if win32ui.MessageBox("Request Was Just Sent You", message, win32con.MB_YESNOCANCEL) == win32con.IDYES:
-                    print("doesnt work message box")
+                message = from_user + " Wanted To Send You A File (" + file_name + ")"
+                if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
                     message_for_server = self.username + SEPERATOR + COPY_FILE + SEPERATOR + from_user + SEPERATOR\
                                          + self.without_cloud(file.path)
                     Client.send_request_to_server(self.my_socket, message_for_server)
-                    self.client_reg.set_observer(DENY_OBS)
+                    name = Client.read_server_response(self.my_socket).decode()
+                    file.set_name(name)
                     file_to_save = file.make_new_file_path(self.cloud)
                     Client.make_imaginary_file(file_to_save)
-                    time.sleep(SHORT_SLEEP)
+                    time.sleep(LONG_SLEEP)
                     self.client_reg.set_observer(ALLOW_OBS)
-                    print("file shared")
+                    print("received")
                 else:
                     print("doesnt work")
                     pass
@@ -231,11 +228,32 @@ class Client(object):
         server_socket. \
             send((str(len(request)).zfill(MSG_FILL) + request).encode())
 
+    def answer_all(self, requests):
+        """
+        :param requests: a string of requests
+        :return: deals with all of them
+        """
+        requests_list = requests.split(REQUEST_SEPARATOR)
+        for request in requests_list:
+            req = request.split(SEPERATOR)
+            from_user = req[START]
+            command = req[SECOND]
+            params = []
+            if len(req) >= TWO_PARAMETER:
+                params = req[THIRD:]
+            self.handle_server_request(from_user, command, params)
+
     def handle_user_input(self):
         """
         :return: does what the client asks for
         """
         done = False
+        # checks for requests while was down
+        message = self.username + SEPERATOR + GET_REQUESTS
+        self.send_request_to_server(self.my_socket, message)
+        requests = self.read_server_response(self.my_socket)
+        if requests.decode() != NO_REQUESTS:
+            self.answer_all(requests.decode())
         # while the operation is not quit. if quit - go out
         while not done:
             # if not blank command

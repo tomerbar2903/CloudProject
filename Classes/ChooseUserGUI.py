@@ -3,7 +3,7 @@ GUI window with a list box to choose a user to share / ask for share
 """
 
 
-from ChooseShareGUI import *
+from GeneralGUI import *
 
 
 class ChooseUserGUI(GeneralGUI):
@@ -68,9 +68,8 @@ class ChooseUserGUI(GeneralGUI):
                     message_txt = "File Shared With %s" % user_to_share
                     wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
                     self.Close()
-                    ChooseShareGUI(self.client.username, self.client)
-                else:
-                    message_txt = "Error At Sharing With %s" % user_to_share
+                elif reply.decode() == REQUEST_EXISTS:
+                    message_txt = "You Sent This File To %s In The Past" % user_to_share
                     wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
                     self.Close()
                     ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)

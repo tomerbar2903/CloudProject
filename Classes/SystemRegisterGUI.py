@@ -6,7 +6,7 @@ The panel where you enter your username and password (LOG IN \ SIGN UP)
 import threading
 from GeneralGUI import *
 from Folder_Manager import *
-from InitCloudGUI import InitCloudGUI
+from InitCloudGUI import *
 from ChooseShareGUI import *
 from ShareGUI import *
 import subprocess

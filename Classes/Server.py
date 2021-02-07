@@ -152,6 +152,12 @@ class Server(object):
                 elif request.upper() == COPY_FILE and \
                         len(params) == TWO_PARAMETER:
                     return True
+                elif request.upper() == GET_REQUESTS and \
+                        len(params) == NO_PARAMETERS:
+                    return True
+                elif request.upper() == RENAME_FILE and \
+                        len(params) == TWO_PARAMETER:
+                    return True
             return False
         except Exception as m:
             print("at check_client_request", m)
@@ -268,10 +274,11 @@ class Server(object):
                     else:
                         answer = ok
                 # sends the general message to the client
-                if answer is not None and answer != GET_OUT:
+                if answer is not None and answer != GET_OUT and answer != BLANK:
                     Server.send_response_to_client(answer, client_socket)
         except socket.error as msg:
             print("A client has left or app finished", msg)
+            self.sock_dict.pop(username)
             self.clients -= ADDER
             return False
         except Exception as msg:
@@ -322,31 +329,110 @@ class Server(object):
             elif request.upper() == GET_USERS:
                 return self.get_users(username)
             elif request.upper() == SHARE:
-                pass
                 to_socket = self.get_socket(params[START])
                 if to_socket == ERROR_FORMAT:
-                    Server.add_request_to_database(username, params[START], username + SEPERATOR + SHARE + SEPERATOR + params[SECOND])
-                reply = self.send_share_to_socket(to_socket, username, params)
+                    file_to_copy = self.find_file(username, params[SECOND])
+                    if self.check_if_identical(username, params[START], params[SECOND]):
+                        reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + SHARE + SEPERATOR + file_to_copy)
+                    else:
+                        reply = REQUEST_EXISTS
+                else:
+                    reply = self.send_share_to_socket(to_socket, username, params)
+                    if reply == USER_OFFLINE:
+                        file_to_copy = self.find_file(username, params[SECOND])
+                        reply = Server.add_request_to_database(username, params[START],
+                                                               username + SEPERATOR + SHARE + SEPERATOR + file_to_copy)
                 return reply
             elif request.upper() == REQ_SOCK_COMMAND:
                 return GET_OUT
             elif request.upper() == COPY_FILE:
-                self.copy_file(params[SECOND], username, params[START])
-                return BLANK
+                reply = self.copy_file(username, params[SECOND])
+                return reply
+            elif request.upper() == GET_REQUESTS:
+                requests = self.get_requests(username)
+                if requests != NO_REQUESTS:
+                    self.delete_requests(username)
+                return requests
             return False
         except Exception as m:
             print("at handle_client_request:", m)
 
-    def copy_file(self, sender_path, from_user, username):
+    @staticmethod
+    def validate_file(file_path):
         """
-        :param sender_path: the path of the file in the client's computer
-        :param from_user: the username that sent the send command
-        :param username: the user that gets the file and allowed it
-        :return: file copied
+        :param file_path: the directory to check no duplicate names
+               i: int that holds the number of the new file
+        :return: the file name or the file name(1)
         """
-        path = self.cloud + "\\" + from_user + sender_path
-        to_paste = self.cloud + "\\" + username
-        shutil.copy2(path, to_paste)
+        i = ADDER
+        file_obj = File(file_path)
+        folder = file_obj.get_directory()
+        file_list = os.listdir(folder)
+        real_file_list = []
+        for file in file_list:
+            if DOT in file:
+                real_file_list.append(File(file).name)
+        file_name = file_obj.name
+        if file_name not in real_file_list:  # if the name doesn't exist
+            return file_path
+        # checks for (i)
+        done = False
+        while not done:
+            if file_name + " (" + str(i) + ")" in real_file_list:
+                i += ADDER
+            else:
+                file_name = file_name + " (" + str(i) + ")"
+                done = True
+        file_obj.set_name(file_name)
+        os.rename(file_path, file_obj.path)
+        return file_obj.path
+
+    def copy_file(self, username, original):
+        """
+        :param username: the current username
+        :param original: the original file path
+        :param new: new name
+        :return: the name of the new file
+        """
+        original_file = open(original, 'rb')
+        new_path = self.cloud + "\\" + username + "\\" + File(original).name + DOT + File(original).format
+        good_path = Server.validate_file(new_path)
+        dest = open(good_path, 'wb')
+        content = original_file.read()
+        dest.write(content)
+        original_file.close()
+        dest.close()
+        return File(good_path).name
+
+    def delete_requests(self, username_to):
+        """
+        :param username_to: username to delete
+        :return: deletes items where id is username_to
+        """
+        user_id = self.get_id(username_to)
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        cur.execute(DELETE_COMMAND % user_id)
+        conn.commit()
+        conn.close()
+
+    def get_requests(self, username):
+        """
+        :param username: the user that asks for his requests
+        :return: string of all requests
+        """
+        user_id = self.get_id(username)
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        reqs = cur.execute(DB_COMMAND_REQUESTS)
+        requests = BLANK
+        for r in reqs:
+            if r[SECOND] == user_id:
+                requests += r[THIRD] + REQUEST_SEPARATOR
+        conn.close()
+        if requests != BLANK:
+            return requests[:-len(REQUEST_SEPARATOR)]  # deletes the last separator
+        return NO_REQUESTS
 
     def send_share_to_socket(self, sock, username, params):
         """
@@ -379,6 +465,7 @@ class Server(object):
         for user in users:
             if user[START] == username:
                 user_id = user[THIRD]
+        conn.close()
         return int(user_id)
 
     @staticmethod
@@ -395,6 +482,23 @@ class Server(object):
         conn.commit()
         conn.close()
         return USER_ADDED
+
+    def check_if_identical(self, user_from, user_to, request):
+        """
+        :param user_from: sender
+        :param user_to: receiver
+        :param request: the request
+        :return: True if not identical, False otherwise
+        """
+        conn = sqlite3.connect(DATABASE)
+        cur = conn.cursor()
+        reqs = cur.execute(DB_COMMAND_REQUESTS)
+        for req in reqs:
+            if req[START] == self.get_id(user_from) and \
+                    req[SECOND] == self.get_id(user_to) and \
+                    req[START] == request:
+                return False
+        return True
 
     def get_socket(self, username):
         """
@@ -417,6 +521,7 @@ class Server(object):
             for user in users_in_db:
                 if username != user[START]:
                     users += user[START] + SEPERATOR
+            conn.close()
             return users[:-len(SEPERATOR)]  # deletes the last separator
         except Exception as m:
             print("at check_log_in", m)

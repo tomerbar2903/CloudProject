@@ -1,7 +1,10 @@
 COMMANDS = ["UPLOAD_FILE", "BLUP", "DOWNLOAD_FILE",
             "DELETE_FILE", "DELETE_DIR", "MAKE_DIR",
             "NEW_USER", "LOG_IN", "MOVE_FILE", "MOVE_DIR",
-            "ASK_SHARE", "SHARE", "GET_USERS", "HI THERE CLOUD!", "COPY_FILE"]
+            "ASK_SHARE", "SHARE", "GET_USERS", "HI THERE CLOUD!", "COPY_FILE",
+            "GET_REQUESTS", "RENAME_FILE"]
+RENAME_FILE = "RENAME_FILE"
+GET_REQUESTS = "GET_REQUESTS"
 COPY_FILE = "COPY_FILE"
 SHARE = "SHARE"
 GET_USERS = "GET_USERS"
@@ -14,6 +17,7 @@ MOVE_FILE = "MOVE_FILE"
 LOG_IN = "LOG_IN"
 GET_OUT = "GET_OUT"
 USER_OFFLINE = "User Offline"
+REQUEST_SEPARATOR = " |||| "
 SOMETHING_WENT_WRONG = "something went wrong"
 NO_USER = "NO_USER"
 INCORRECT_PASSWORD = "password incorrect"
@@ -31,6 +35,7 @@ QUIT_BOTTON = "Quit"
 MENU = "Menu"
 SIGN_IN_PANEL_SIZE = (270, 225)
 SELECT_DIRECTORY = "Folder Selection"
+DELETE_FLAG_REG = "delete_flag"
 CHOOSE_YOUR_CLOUD_STATIC = "Choose Your Cloud"
 NO_PASSWORD = ""
 PYTHON = "python"
@@ -127,7 +132,11 @@ QUIT_BTN = 'Quit'
 QUIT_APP = 'Quit Application'
 MENU_GUI = 'Menu&'
 NONE_VALID = "you entered a non valid value"
+REQUEST_EXISTS = "You Have Sent This Request Already"
 DB_COMMAND_USERS = "select * from users"
+DB_COMMAND_REQUESTS = "select * from requests"
+DELETE_COMMAND = "delete from requests where id_to = %s"
+NO_REQUESTS = "NO_REQUESTS"
 NOT_FOUND = 0
 THIRD = 2
 DB_COMMAND_USERNAME = "select username from users"

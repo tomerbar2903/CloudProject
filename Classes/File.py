@@ -6,6 +6,7 @@ Class File - contains properties:
 TOMER BAR 16/09/2020
 """
 from CONSTS import *
+import os
 
 
 END = -1
@@ -46,6 +47,7 @@ class File(object):
         :return: -
         """
         self.format = format
+        self.path = self.path.split(DOT)[START] + self.format
 
     def change_file_to_cloud(self, cloud_format):
         """
@@ -62,6 +64,50 @@ class File(object):
         :return: the new path
         """
         return folder + '\\' + self.name + '.' + self.format
+
+    def set_name(self, name):
+        """
+        :param name: new name of file
+        :return: -
+        """
+        self.name = name
+        self.path = self.get_directory() + "\\" + self.name + DOT + self.format
+
+    @staticmethod
+    def validate_file(file_path):
+        """
+        :param file_path: the directory to check no duplicate names
+               i: int that holds the number of the new file
+        :return: the file name or the file name(1)
+        """
+        i = ADDER
+        file_obj = File(file_path)
+        folder = file_obj.get_directory()
+        file_list = os.listdir(folder)
+        real_file_list = []
+        for file in file_list:
+            if DOT in file and File(file).format == CLOUD_FORMAT:
+                real_file_list.append(File(file).name)
+        file_name = file_obj.name
+        if file_name not in real_file_list:  # if the name doesn't exist
+            return file_path
+        # checks for (i)
+        done = False
+        while not done:
+            if file_name + " (" + str(i) + ")" in real_file_list:
+                i += ADDER
+            else:
+                file_name = file_name + " (" + str(i) + ")"
+                done = True
+        file_obj.set_name(file_name)
+        os.rename(file_path, file_obj.path)
+        return file_obj.path
+
+    def get_directory(self):
+        """
+        :return: the directory to the file
+        """
+        return "\\".join(self.path.split("\\")[:END])
 
     def new_format_path(self, format):
         """
