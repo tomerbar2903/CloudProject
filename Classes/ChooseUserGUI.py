@@ -57,6 +57,7 @@ class ChooseUserGUI(GeneralGUI):
         """
         :return: sends server a message according to mode
         """
+        self.Close()
         user_to_share = self.user_listbox.GetStringSelection()
         if user_to_share != BLANK:
             if self.mode == SHARE_MODE:
@@ -65,7 +66,7 @@ class ChooseUserGUI(GeneralGUI):
                 self.client.send_request_to_server(self.client.my_socket, message)
                 reply = self.client.read_server_response(self.client.my_socket)
                 if reply.decode() == MESSAGE_SENT:
-                    message_txt = "File Shared With %s" % user_to_share
+                    message_txt = "Your Message To %s Was Sent" % user_to_share
                     wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
                     self.Close()
                 elif reply.decode() == REQUEST_EXISTS:

@@ -86,23 +86,23 @@ class Client(object):
         """
         :return: recieveing requests and handles them
         """
-        while True:
-            request_length = self.req_socket.recv(BYTE).decode()
-            if request_length.isdigit():
-                request = self.req_socket.recv(int(request_length)).decode()
-                req_and_prms = request.split(SEPERATOR)
-                from_user = BLANK
-                command = BLANK
-                params = []
-                if len(req_and_prms) > TWO_PARAMETER:
-                    print("p1")
-                    from_user = req_and_prms.pop(START)
-                    print("from user", from_user)
-                    command = req_and_prms.pop(START)
-                    print("command", command)
-                    params = req_and_prms
-                    print("params", params)
-                self.handle_server_request(from_user, command, params)
+        try:
+            while True:
+                request_length = self.req_socket.recv(BYTE).decode()
+                if request_length.isdigit():
+                    request = self.req_socket.recv(int(request_length)).decode()
+                    req_and_prms = request.split(SEPERATOR)
+                    from_user = BLANK
+                    command = BLANK
+                    params = []
+                    if len(req_and_prms) > TWO_PARAMETER:
+                        from_user = req_and_prms.pop(START)
+                        command = req_and_prms.pop(START)
+                        params = req_and_prms
+                    self.handle_server_request(from_user, command, params)
+        except socket.error:
+            pass
+            self.client_reg.set_observer(DENY_OBS)  # so that folder manager will not be triggered
 
     def handle_server_request(self, from_user, command, params):
         """
@@ -128,9 +128,11 @@ class Client(object):
                     self.client_reg.set_observer(ALLOW_OBS)
                     print("received")
                 else:
-                    print("doesnt work")
-                    pass
-                    # TODO - send server that request is not allowed
+                    message = self.username + SEPERATOR + DONT_SEND + SEPERATOR + from_user + SEPERATOR + file_name
+                    Client.send_request_to_server(self.my_socket, message)
+            elif command == DONT_SEND and len(params) == ONE_PARAMETER:
+                message = from_user + " Denied Your Offer Of " + params[START]
+                win32ui.MessageBox(message, "Offer Denied", win32con.MB_YESNOCANCEL)
 
     def initiate_cloud(self):
         """
@@ -252,7 +254,7 @@ class Client(object):
         message = self.username + SEPERATOR + GET_REQUESTS
         self.send_request_to_server(self.my_socket, message)
         requests = self.read_server_response(self.my_socket)
-        if requests.decode() != NO_REQUESTS:
+        if requests.decode() != NO_REQUESTS and requests.decode() != SERVER_FELL:
             self.answer_all(requests.decode())
         # while the operation is not quit. if quit - go out
         while not done:
@@ -264,10 +266,11 @@ class Client(object):
                     data = self.upload(
                         self.request, self.my_socket)
                 self.handle_server_response(data)
-            if data != SERVER_FELL:
-                pass
-            else:
+            if data.decode() == SERVER_FELL:
+                win32ui.MessageBox("The Server Has Fallen Down", "Error At Cloud", win32con.MB_YESNOCANCEL)
                 self.my_socket.close()
+                self.req_socket.close()
+                self.client_reg.set_observer(DENY_OBS)  # so that folder manager will not be triggered
                 done = True
 
     @staticmethod
@@ -280,9 +283,8 @@ class Client(object):
             length_of_message = server_socket_choice.recv(BYTE).decode()
             if length_of_message.isdigit():
                 return server_socket_choice.recv(int(length_of_message))
-        except Exception as msg:
-            print("at read_server_response:", msg)
-            return SERVER_FELL
+        except:
+            return SERVER_FELL.encode()
 
     @staticmethod
     def handle_server_response(server_response):
@@ -292,7 +294,7 @@ class Client(object):
         """
         try:
             if server_response.decode() != BLANK:
-                if server_response != SERVER_FELL:
+                if server_response.decode() != SERVER_FELL:
                     print(server_response.decode())
                 else:
                     print("\n\n******the server has fallen down******\n")

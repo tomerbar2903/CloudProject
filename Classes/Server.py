@@ -155,7 +155,7 @@ class Server(object):
                 elif request.upper() == GET_REQUESTS and \
                         len(params) == NO_PARAMETERS:
                     return True
-                elif request.upper() == RENAME_FILE and \
+                elif request.upper() == DONT_SEND and \
                         len(params) == TWO_PARAMETER:
                     return True
             return False
@@ -278,7 +278,6 @@ class Server(object):
                     Server.send_response_to_client(answer, client_socket)
         except socket.error as msg:
             print("A client has left or app finished", msg)
-            self.sock_dict.pop(username)
             self.clients -= ADDER
             return False
         except Exception as msg:
@@ -353,6 +352,17 @@ class Server(object):
                 if requests != NO_REQUESTS:
                     self.delete_requests(username)
                 return requests
+            elif request.upper() == DONT_SEND:
+                sock_to_send = self.get_socket(params[START])
+                if sock_to_send == ERROR_FORMAT:
+                    reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DONT_SEND
+                                                           + SEPERATOR + params[SECOND])
+                else:
+                    reply = Server.send_dont_to_socket(sock_to_send, username, params)
+                    if reply == USER_OFFLINE:
+                        reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DONT_SEND
+                                                               + SEPERATOR + params[SECOND])
+                return reply
             return False
         except Exception as m:
             print("at handle_client_request:", m)
@@ -433,6 +443,24 @@ class Server(object):
         if requests != BLANK:
             return requests[:-len(REQUEST_SEPARATOR)]  # deletes the last separator
         return NO_REQUESTS
+
+    @staticmethod
+    def send_dont_to_socket(sock, username, params):
+        """
+        :param sock: to socket
+        :param params: the username to send to + file to share
+        :return: True - sent False- added to database
+        """
+        try:
+            from_user = username
+            file = params[SECOND]
+            message = from_user + SEPERATOR + DONT_SEND + SEPERATOR + file
+            message_length = len(message.encode())
+            good_length = str(message_length).zfill(BYTE).encode()
+            sock.send(good_length + message.encode())
+            return MESSAGE_SENT
+        except socket.error:
+            return USER_OFFLINE
 
     def send_share_to_socket(self, sock, username, params):
         """
