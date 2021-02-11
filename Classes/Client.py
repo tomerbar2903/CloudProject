@@ -11,7 +11,7 @@ from ReadRegistry import *
 class Client(object):
     def __init__(self, constructor_mode, ip, port):
         """
-        :param constructor_mode: 0- Known username (application & log in))
+        :param constructor_mode: 0- Known username (application & log in)
                                  1- Unknown username (set up)
         :param ip: optional
         :param port: optional
@@ -67,9 +67,6 @@ class Client(object):
                     socket.AF_INET, socket.SOCK_STREAM)
                 # connect to server
                 self.my_socket.connect((self.ip, self.port))
-                self.req_socket = socket.socket(
-                    socket.AF_INET, socket.SOCK_STREAM)
-                self.req_socket.connect((self.ip, self.port))
         except Exception as msg:
             print("at constructor Client", msg)
 
@@ -95,7 +92,7 @@ class Client(object):
                     from_user = BLANK
                     command = BLANK
                     params = []
-                    if len(req_and_prms) > TWO_PARAMETER:
+                    if len(req_and_prms) >= TWO_PARAMETER:
                         from_user = req_and_prms.pop(START)
                         command = req_and_prms.pop(START)
                         params = req_and_prms
@@ -108,31 +105,51 @@ class Client(object):
         """
         :return: handles request
         """
-        if command in COMMANDS:
-            if command == SHARE and \
-                    len(params) == ONE_PARAMETER:
-                self.client_reg.set_observer(DENY_OBS)
-                file = File(params[START])
-                real_file = file.get_name() + DOT + file.get_format()
-                file_name = File(real_file).name + DOT + File(real_file).format
-                message = from_user + " Wanted To Send You A File (" + file_name + ")"
-                if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
-                    message_for_server = self.username + SEPERATOR + COPY_FILE + SEPERATOR + from_user + SEPERATOR\
-                                         + self.without_cloud(file.path)
-                    Client.send_request_to_server(self.my_socket, message_for_server)
-                    name = Client.read_server_response(self.my_socket).decode()
-                    file.set_name(name)
-                    file_to_save = file.make_new_file_path(self.cloud)
-                    Client.make_imaginary_file(file_to_save)
-                    time.sleep(LONG_SLEEP)
-                    self.client_reg.set_observer(ALLOW_OBS)
-                    print("received")
-                else:
-                    message = self.username + SEPERATOR + DONT_SEND + SEPERATOR + from_user + SEPERATOR + file_name
-                    Client.send_request_to_server(self.my_socket, message)
-            elif command == DONT_SEND and len(params) == ONE_PARAMETER:
-                message = from_user + " Denied Your Offer Of " + params[START]
-                win32ui.MessageBox(message, "Offer Denied", win32con.MB_YESNOCANCEL)
+        if command == SHARE and \
+                len(params) == ONE_PARAMETER:
+            self.client_reg.set_observer(DENY_OBS)
+            file = File(params[START])
+            file_name = File(file).name + DOT + File(file).format
+            message = from_user + " Wanted To Send You A File (" + file_name + ")"
+            if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
+                message_for_server = self.username + SEPERATOR + COPY_FILE + SEPERATOR + from_user + SEPERATOR\
+                                     + self.without_cloud(file.path)
+                Client.send_request_to_server(self.my_socket, message_for_server)
+                name = Client.read_server_response(self.my_socket).decode()
+                file.set_name(name)
+                file_to_save = file.make_new_file_path(self.cloud)
+                Client.make_imaginary_file(file_to_save)
+                time.sleep(LONG_SLEEP)
+                self.client_reg.set_observer(ALLOW_OBS)
+                print("received")
+            else:
+                message = self.username + SEPERATOR + DONT_SEND + SEPERATOR + from_user + SEPERATOR + file_name
+                Client.send_request_to_server(self.my_socket, message)
+        elif command == DONT_SEND and len(params) == ONE_PARAMETER:
+            message = from_user + " Denied Your Offer Of " + params[START]
+            win32ui.MessageBox(message, "Offer Denied", win32con.MB_YESNOCANCEL)
+        elif command == ASK_FOR_SHARE and len(params) == NO_PARAMETERS:
+            message = from_user + " Wants To Access Your Files"
+            if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
+                message = self.username + SEPERATOR + SEND_MY_FILES
+                Client.send_request_to_server(self.req_socket, message)
+            else:
+                message = self.username + SEPERATOR + DENY_ACCESS
+                Client.send_request_to_server(self.req_socket, message)
+        elif command == DENY_ACCESS and len(params) == NO_PARAMETERS:
+            message = from_user + " Denied Your Offer Of Accessing His Cloud"
+            win32ui.MessageBox(message, "Offer Denied", win32con.MB_YESNOCANCEL)
+        elif command == ASK_FOR_FILE and len(params) == ONE_PARAMETER:
+            file = File(params[START])
+            file_name = File(file).name + DOT + File(file).format
+            message = from_user + " Wants You To Send Him %s" % file_name
+            if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
+                message_for_server = self.username + SEPERATOR + SHARE + SEPERATOR + from_user + \
+                          SEPERATOR + self.without_cloud(file.path)
+                Client.send_request_to_server(self.my_socket, message_for_server)
+            else:
+                message = self.username + SEPERATOR + DONT_SEND + SEPERATOR + from_user + SEPERATOR + file_name
+                Client.send_request_to_server(self.my_socket, message)
 
     def initiate_cloud(self):
         """
@@ -269,7 +286,10 @@ class Client(object):
             if data.decode() == SERVER_FELL:
                 win32ui.MessageBox("The Server Has Fallen Down", "Error At Cloud", win32con.MB_YESNOCANCEL)
                 self.my_socket.close()
-                self.req_socket.close()
+                try:
+                    self.req_socket.close()
+                except:
+                    pass  # is the mode doesn't include a receiving socket
                 self.client_reg.set_observer(DENY_OBS)  # so that folder manager will not be triggered
                 done = True
 
@@ -390,3 +410,10 @@ class Client(object):
         :return: True - exists, False - otherwise
         """
         return os.path.isdir(folder)
+
+    def end(self):
+        """
+        :return: closes all sockets of current client
+        """
+        self.my_socket.close()
+        self.req_socket.close()

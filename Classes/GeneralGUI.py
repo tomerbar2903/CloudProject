@@ -68,4 +68,6 @@ class GeneralGUI(wx.Frame):
         :param e: event of close
         :return: close the window
         """
+        self.client.end()
         self.Close()
+

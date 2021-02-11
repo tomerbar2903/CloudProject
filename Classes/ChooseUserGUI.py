@@ -3,7 +3,7 @@ GUI window with a list box to choose a user to share / ask for share
 """
 
 
-from GeneralGUI import *
+from ViewFilesGUI import *
 
 
 class ChooseUserGUI(GeneralGUI):
@@ -16,7 +16,7 @@ class ChooseUserGUI(GeneralGUI):
         :param size: long and narrow
         """
         super().__init__(None, title, CHOOSE_USER_GUI_SIZE, client)
-        self.args = args  # arguments
+        self.args = args  # arguments - empty list of file to share
         self.title = title  # saves it for later use
         self.btn_title = btn_title  # saves it for later use
         self.mode = SHARE_MODE
@@ -47,10 +47,19 @@ class ChooseUserGUI(GeneralGUI):
         """
         :return: list of users minus current one
         """
-        message = self.client.username + SEPERATOR + GET_USERS
-        self.client.send_request_to_server(self.client.my_socket, message)
-        users = self.client.read_server_response(self.client.my_socket).decode().split(
-            SEPERATOR)
+        if self.mode == SHARE_MODE:
+            message = self.client.username + SEPERATOR + GET_USERS
+            self.client.send_request_to_server(self.client.my_socket, message)
+            users = self.client.read_server_response(self.client.my_socket).decode().split(
+                SEPERATOR)
+        elif self.mode == ASK_FOR_SHARE_MODE:
+            message = self.client.username + SEPERATOR + GET_ONLINE_USERS
+            self.client.send_request_to_server(self.client.my_socket, message)
+            users = self.client.read_server_response(self.client.my_socket).decode()
+            if users != NO_ONLINE:
+                return users.split(SEPERATOR)
+            else:
+                return []
         return users
 
     def on_share(self, e):
@@ -74,5 +83,17 @@ class ChooseUserGUI(GeneralGUI):
                     wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
                     self.Close()
                     ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)
+            elif self.mode == ASK_FOR_SHARE_MODE:
+                message = self.client.username + SEPERATOR + ASK_FOR_SHARE + SEPERATOR + user_to_share
+                self.client.send_request_to_server(self.client.my_socket, message)
+                reply = self.client.read_server_response(self.client.my_socket).decode()
+                if reply == MESSAGE_SENT:
+                    files = self.client.read_server_response(self.client.my_socket).decode()
+                    if files == NO_FILES:
+                        message_txt = "%s Has No Files Yet" % user_to_share
+                        wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
+                    else:
+                        ViewFilesGUI(self.client, files, user_to_share)
         else:
             ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)
+

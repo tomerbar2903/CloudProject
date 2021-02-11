@@ -21,7 +21,7 @@ class Server(object):
         :param port: port
         """
         try:
-            self.sock_dict = {}
+            self.sock_dict = {}  # holds the online users
             self.ip = ip
             self.port = port
             reg = ReadRegistry(SERVER_REG)  # server reading
@@ -158,6 +158,21 @@ class Server(object):
                 elif request.upper() == DONT_SEND and \
                         len(params) == TWO_PARAMETER:
                     return True
+                elif request.upper() == ASK_FOR_SHARE and \
+                        len(params) == ONE_PARAMETER:
+                    return True
+                elif request.upper() == SEND_MY_FILES and \
+                        len(params) == ONE_PARAMETER:
+                    return True
+                elif request.upper() == ASK_FOR_FILE and \
+                        len(params) == TWO_PARAMETER:
+                    return True
+                elif request.upper() == DENY_ACCESS and \
+                        len(params) == ONE_PARAMETER:
+                    return True
+                elif request.upper() == GET_ONLINE_USERS and \
+                        len(params) == NO_PARAMETERS:
+                    return True
             return False
         except Exception as m:
             print("at check_client_request", m)
@@ -204,16 +219,17 @@ class Server(object):
         instructions
         """
         # thread setting
+        username = BLANK
         num = self.clients
         self.clients += 1
         ans = BLANK
         print("starting thread", num)
 
-        try:
-            # so that at first, it will get into the loop
-            done2 = False
-            reply = ""  # initiates
-            while not done2:
+        # so that at first, it will get into the loop
+        done2 = False
+        reply = ""  # initiates
+        while not done2:
+            try:
                 # gets the message from the client
                 username, request, params = Server.receive_client_request(
                     client_socket)
@@ -223,7 +239,7 @@ class Server(object):
                 if ok:
                     # holds the value of the answer to the client
                     answer = self. \
-                        handle_client_request(username, request, params)
+                        handle_client_request(username, request, params, client_socket)
 
                     if answer == READY:  # ready to download
                         Server.send_response_to_client(answer, client_socket)
@@ -259,7 +275,7 @@ class Server(object):
                             Server.delete_file(answer)
                         # sends the original file path
                         answer = self.handle_client_request(
-                            username2, request2, params2)
+                            username2, request2, params2, client_socket)
                     elif answer == GET_OUT:
                         self.sock_dict[username] = client_socket
                         self.clients -= ADDER
@@ -276,15 +292,18 @@ class Server(object):
                 # sends the general message to the client
                 if answer is not None and answer != GET_OUT and answer != BLANK:
                     Server.send_response_to_client(answer, client_socket)
-        except socket.error as msg:
-            print("A client has left or app finished", msg)
-            self.clients -= ADDER
-            return False
-        except Exception as msg:
-            print("general error at handle_single_client:", msg)
-            return False
+            except socket.error as msg:
+                print("A client has left or app finished", msg)
+                if username != NO_USER and username != BLANK:
+                    self.sock_dict.pop(username)
+                print(self.sock_dict)
+                self.clients -= ADDER
+                return False
+            except Exception as msg:
+                print("general error at handle_single_client:", msg)
+                return False
 
-    def handle_client_request(self, username, request, params):
+    def handle_client_request(self, username, request, params, client_socket):
         """
         returns the wanted values, according to the client's request
         """
@@ -363,9 +382,129 @@ class Server(object):
                         reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DONT_SEND
                                                                + SEPERATOR + params[SECOND])
                 return reply
+            elif request == ASK_FOR_SHARE:
+                sock_to_send = self.get_socket(params[START])
+                if sock_to_send == ERROR_FORMAT:
+                    reply = USER_OFFLINE
+                else:
+                    Server.send_ask_to_socket(sock_to_send, username)
+                    user, reply, prm = Server.receive_client_request(sock_to_send)
+                    if reply == SEND_MY_FILES:
+                        reply = self.get_my_files(user)
+                return reply
+            elif request.upper() == ASK_FOR_FILE:
+                file_to_ask = self.cloud + "\\" + params[START] + "\\" + params[SECOND]
+                sock_to_send = self.get_socket(params[START])
+                if sock_to_send == ERROR_FORMAT:
+                    reply = Server.add_request_to_database(username, params[START],
+                                                           username + SEPERATOR + ASK_FOR_FILE + file_to_ask)
+                else:
+                    reply = Server.send_ask_file_to_socket(sock_to_send, username, file_to_ask)
+                    if reply == USER_OFFLINE:
+                        reply = Server.add_request_to_database(username, params[START],
+                                                               username + SEPERATOR + ASK_FOR_FILE + file_to_ask)
+                return reply
+            elif request == DENY_ACCESS:
+                sock_to_send = self.get_socket(params[START])
+                if sock_to_send == ERROR_FORMAT:
+                    reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DENY_ACCESS)
+                else:
+                    reply = Server.send_deny_to_socket(sock_to_send, username)
+                    if reply == USER_OFFLINE:
+                        reply = Server.add_request_to_database(username, params[START], username + SEPERATOR
+                                                               + DENY_ACCESS)
+                return reply
+            elif request == GET_ONLINE_USERS:
+                return self.get_online_users(username)
             return False
         except Exception as m:
             print("at handle_client_request:", m)
+
+    def get_online_users(self, username):
+        """
+        :return: a string of all connected users
+        """
+        online_users = self.sock_dict.keys()
+        users = BLANK
+        for u in online_users:
+            if u != username:
+                users += u + SEPERATOR
+        if len(users) > NO_USERS:
+            return users[:-len(SEPERATOR)]  # without the last separator
+        else:
+            return NO_ONLINE
+
+    @staticmethod
+    def send_deny_to_socket(sock, username):
+        """
+        :param sock: to socket
+        :param params: the username to send to + file to share
+        :return: True - sent False- added to database
+        """
+        try:
+            from_user = username
+            message = from_user + SEPERATOR + DENY_ACCESS
+            message_length = len(message.encode())
+            good_length = str(message_length).zfill(BYTE).encode()
+            sock.send(good_length + message.encode())
+            return MESSAGE_SENT
+        except socket.error:
+            return USER_OFFLINE
+
+    @staticmethod
+    def send_ask_file_to_socket(sock, username, file):
+        """
+        :param sock: socket to send to
+        :param username: the current username
+        :return: message sent \ user offline
+        """
+        try:
+            from_user = username
+            message = from_user + SEPERATOR + ASK_FOR_FILE + SEPERATOR + file
+            message_length = len(message.encode())
+            good_length = str(message_length).zfill(BYTE).encode()
+            sock.send(good_length + message.encode())
+            return MESSAGE_SENT
+        except socket.error:
+            return USER_OFFLINE
+
+    def get_my_files(self, username):
+        """
+        :param username: the username that sends his file list
+        :return: file string of all names and types (folder\\file_name.file_type)
+        """
+        folder = self.cloud + "\\" + username
+        files = []
+        # r=root, d=directories, f = files
+        for r, d, f in os.walk(folder):
+            for file in f:
+                if TRASH_DIRECTORY not in r:
+                    file_path = os.path.join(r, file)
+                    file_for_list = file_path.replace(self.cloud + "\\" + username + "\\", BLANK)
+                    files.append(file_for_list)
+        files_string = BLANK
+        for file in files:
+            files_string += file + FILE_SEPARATOR
+        if len(files_string) == len(FILE_SEPARATOR):
+            return NO_FILES
+        return files_string[:-len(FILE_SEPARATOR)]  # deletes the last seperator
+
+    @staticmethod
+    def send_ask_to_socket(sock, username):
+        """
+        :param sock: to socket
+        :param params: the username to send to + file to share
+        :return: message sent \ user offline
+        """
+        try:
+            from_user = username
+            message = from_user + SEPERATOR + ASK_FOR_SHARE
+            message_length = len(message.encode())
+            good_length = str(message_length).zfill(BYTE).encode()
+            sock.send(good_length + message.encode())
+            return MESSAGE_SENT
+        except socket.error:
+            return USER_OFFLINE
 
     @staticmethod
     def validate_file(file_path):

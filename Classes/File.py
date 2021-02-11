@@ -117,3 +117,4 @@ class File(object):
         path_format = self.path.split('.')
         path_format[SECOND] = format
         return ".".join(path_format)
+
