@@ -294,9 +294,9 @@ class Server(object):
                     Server.send_response_to_client(answer, client_socket)
             except socket.error as msg:
                 print("A client has left or app finished", msg)
-                if username != NO_USER and username != BLANK:
+                if username != NO_USER and username != BLANK and len(self.sock_dict) > NO_PARAMETERS and \
+                        username in self.sock_dict.keys():
                     self.sock_dict.pop(username)
-                print(self.sock_dict)
                 self.clients -= ADDER
                 return False
             except Exception as msg:
@@ -393,7 +393,7 @@ class Server(object):
                         reply = self.get_my_files(user)
                 return reply
             elif request.upper() == ASK_FOR_FILE:
-                file_to_ask = self.cloud + "\\" + params[START] + "\\" + params[SECOND]
+                file_to_ask = params[SECOND]
                 sock_to_send = self.get_socket(params[START])
                 if sock_to_send == ERROR_FORMAT:
                     reply = Server.add_request_to_database(username, params[START],
@@ -507,10 +507,12 @@ class Server(object):
             return USER_OFFLINE
 
     @staticmethod
-    def validate_file(file_path):
+    def validate_file(file_path, mode):
         """
         :param file_path: the directory to check no duplicate names
                i: int that holds the number of the new file
+        :param mode: 0 - no renaming, just returning new name
+                     1 - renaming the file
         :return: the file name or the file name(1)
         """
         i = ADDER
@@ -533,7 +535,8 @@ class Server(object):
                 file_name = file_name + " (" + str(i) + ")"
                 done = True
         file_obj.set_name(file_name)
-        os.rename(file_path, file_obj.path)
+        if mode == RENAME_FILE:
+            os.rename(file_path, file_obj.path)
         return file_obj.path
 
     def copy_file(self, username, original):
@@ -545,7 +548,7 @@ class Server(object):
         """
         original_file = open(original, 'rb')
         new_path = self.cloud + "\\" + username + "\\" + File(original).name + DOT + File(original).format
-        good_path = Server.validate_file(new_path)
+        good_path = Server.validate_file(new_path, NOT_RENAME_FILE_MODE)
         dest = open(good_path, 'wb')
         content = original_file.read()
         dest.write(content)

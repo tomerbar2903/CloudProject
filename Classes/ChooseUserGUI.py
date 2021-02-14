@@ -24,7 +24,10 @@ class ChooseUserGUI(GeneralGUI):
             self.mode = ASK_FOR_SHARE_MODE
         self.users = self.get_users()
         self.user_listbox = wx.ListBox(self.pnl, pos=wx.DefaultPosition, size=wx.DefaultSize, choices=self.users)
-        self.choose_static = wx.StaticText(self.pnl, label=CHOOSE_USER_SHARE_STATIC)
+        if self.mode == SHARE_MODE:
+            self.choose_static = wx.StaticText(self.pnl, label=CHOOSE_USER_SHARE_STATIC)
+        elif self.mode == ASK_FOR_SHARE_MODE:
+            self.choose_static = wx.StaticText(self.pnl, label=CHOOSE_USER_SHARE_TITLE)
         self.btn = wx.Button(self.pnl, label=btn_title)
         self.btn.Bind(wx.EVT_BUTTON, self.on_share)
         self.btn_list_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -86,14 +89,12 @@ class ChooseUserGUI(GeneralGUI):
             elif self.mode == ASK_FOR_SHARE_MODE:
                 message = self.client.username + SEPERATOR + ASK_FOR_SHARE + SEPERATOR + user_to_share
                 self.client.send_request_to_server(self.client.my_socket, message)
-                reply = self.client.read_server_response(self.client.my_socket).decode()
-                if reply == MESSAGE_SENT:
-                    files = self.client.read_server_response(self.client.my_socket).decode()
-                    if files == NO_FILES:
-                        message_txt = "%s Has No Files Yet" % user_to_share
-                        wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
-                    else:
-                        ViewFilesGUI(self.client, files, user_to_share)
+                files = self.client.read_server_response(self.client.my_socket).decode()
+                if files != NO_FILES:
+                    ViewFilesGUI(self.client, files, user_to_share)
+                else:
+                    message_txt = "%s Has No Files Yet" % user_to_share
+                    wx.MessageBox(message_txt, 'Share', wx.OK | wx.ICON_INFORMATION)
         else:
             ChooseUserGUI(self.title, self.btn_title, self.mode, self.client)
 

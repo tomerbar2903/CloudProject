@@ -109,7 +109,7 @@ class Client(object):
                 len(params) == ONE_PARAMETER:
             self.client_reg.set_observer(DENY_OBS)
             file = File(params[START])
-            file_name = File(file).name + DOT + File(file).format
+            file_name = file.name + DOT + file.format
             message = from_user + " Wanted To Send You A File (" + file_name + ")"
             if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
                 message_for_server = self.username + SEPERATOR + COPY_FILE + SEPERATOR + from_user + SEPERATOR\
@@ -141,11 +141,13 @@ class Client(object):
             win32ui.MessageBox(message, "Offer Denied", win32con.MB_YESNOCANCEL)
         elif command == ASK_FOR_FILE and len(params) == ONE_PARAMETER:
             file = File(params[START])
-            file_name = File(file).name + DOT + File(file).format
-            message = from_user + " Wants You To Send Him %s" % file_name
+            message = from_user + " Wants You To Send Him %s" % file.path
+            print(file.path)
             if win32ui.MessageBox(message, "Request Was Just Sent You", win32con.MB_YESNOCANCEL) == win32con.IDYES:
+                file.set_format(CLOUD_FORMAT)
+                print(file.path)
                 message_for_server = self.username + SEPERATOR + SHARE + SEPERATOR + from_user + \
-                          SEPERATOR + self.without_cloud(file.path)
+                                    SEPERATOR + file.path
                 Client.send_request_to_server(self.my_socket, message_for_server)
             else:
                 message = self.username + SEPERATOR + DONT_SEND + SEPERATOR + from_user + SEPERATOR + file_name

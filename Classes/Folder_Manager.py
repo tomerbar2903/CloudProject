@@ -31,7 +31,7 @@ class MyHandler(FileSystemEventHandler):
         last_deleted = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, DELETE_FLAG_REG)
         if observer_check == ALLOW_OBS:
             if last_deleted != File(new_file).name:
-                new_file = File.validate_file(new_file)
+                new_file = File.validate_file(new_file, RENAME_FILE_MODE)
             if Client.valid_file(new_file) and \
                     File(new_file).get_format() != CLOUD_FORMAT and \
                     APPINFO not in new_file:

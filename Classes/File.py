@@ -47,7 +47,7 @@ class File(object):
         :return: -
         """
         self.format = format
-        self.path = self.path.split(DOT)[START] + self.format
+        self.path = self.path.split(DOT)[START] + DOT + self.format
 
     def change_file_to_cloud(self, cloud_format):
         """
