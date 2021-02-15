@@ -74,7 +74,7 @@ class File(object):
         self.path = self.get_directory() + "\\" + self.name + DOT + self.format
 
     @staticmethod
-    def validate_file(file_path):
+    def validate_file(file_path, file_mode):
         """
         :param file_path: the directory to check no duplicate names
                i: int that holds the number of the new file
@@ -100,7 +100,8 @@ class File(object):
                 file_name = file_name + " (" + str(i) + ")"
                 done = True
         file_obj.set_name(file_name)
-        os.rename(file_path, file_obj.path)
+        if file_mode == RENAME_FILE_MODE:
+            os.rename(file_path, file_obj.path)
         return file_obj.path
 
     def get_directory(self):

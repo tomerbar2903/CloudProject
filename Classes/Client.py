@@ -13,6 +13,7 @@ class Client(object):
         """
         :param constructor_mode: 0- Known username (application & log in)
                                  1- Unknown username (set up)
+                                 2 - Known Username + request socket (mid gui mode)
         :param ip: optional
         :param port: optional
         :param request: optional
@@ -67,6 +68,29 @@ class Client(object):
                     socket.AF_INET, socket.SOCK_STREAM)
                 # connect to server
                 self.my_socket.connect((self.ip, self.port))
+            elif constructor_mode == MID_GUI_MODE:
+                reg = ReadRegistry(SERVER_REG)  # server cloud
+                ip1, port1 = reg.get_ip_port()
+                if ip is not None and port is not None:
+                    self.ip = ip
+                    self.port = port
+                else:
+                    self.ip = ip1
+                    self.port = port1
+                self.request = NO_COMMAND
+                self.req_socket = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+                self.req_socket.connect((self.ip, self.port))
+                self.my_socket = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+                # connect to server
+                self.my_socket.connect((self.ip, self.port))
+                self.client_reg = ReadRegistry(CLIENT_REG)  # client reading
+                self.username = self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG)
+                self.password = self.client_reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, PASSWORD_REG)
+                self.cloud = self.client_reg. \
+                    read_registry(HKEY_LOCAL_MACHINE,
+                                  CLIENT_REG, CLOUD_REG)
         except Exception as msg:
             print("at constructor Client", msg)
 

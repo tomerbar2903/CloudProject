@@ -30,33 +30,34 @@ class MyHandler(FileSystemEventHandler):
                                                 CLIENT_REG, OBSERVER)
         last_deleted = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, DELETE_FLAG_REG)
         if observer_check == ALLOW_OBS:
-            if last_deleted != File(new_file).name:
-                new_file = File.validate_file(new_file, RENAME_FILE_MODE)
-            if Client.valid_file(new_file) and \
-                    File(new_file).get_format() != CLOUD_FORMAT and \
-                    APPINFO not in new_file:
-                self.client.send_request_to_server(self.client.my_socket,
-                                                   self.client.username +
-                                                   SEPERATOR + UPLOAD_FILE +
-                                                   SEPERATOR +
-                                                   self.client.without_cloud(
-                                                       new_file))
-                self.client.request = new_file
-            elif File(new_file).get_format() == CLOUD_FORMAT and \
-                    DOT in new_file and APPINFO not in new_file:
-                self.client.send_request_to_server(self.client.my_socket,
-                                                   self.client.username +
-                                                   SEPERATOR +
-                                                   MOVE_FILE + SEPERATOR +
-                                                   self.client.without_cloud(
-                                                       new_file))
-            elif DOT not in new_file:
-                self.client.send_request_to_server(self.client.my_socket,
-                                                   self.client.username +
-                                                   SEPERATOR +
-                                                   MAKE_DIR + SEPERATOR +
-                                                   self.client.without_cloud(
-                                                       new_file))
+            if APPLICATION_GUI_NAME not in new_file:
+                if last_deleted != File(new_file).name:
+                    new_file = File.validate_file(new_file, RENAME_FILE_MODE)
+                if Client.valid_file(new_file) and \
+                        File(new_file).get_format() != CLOUD_FORMAT and \
+                        APPINFO not in new_file:
+                    self.client.send_request_to_server(self.client.my_socket,
+                                                       self.client.username +
+                                                       SEPERATOR + UPLOAD_FILE +
+                                                       SEPERATOR +
+                                                       self.client.without_cloud(
+                                                           new_file))
+                    self.client.request = new_file
+                elif File(new_file).get_format() == CLOUD_FORMAT and \
+                        DOT in new_file and APPINFO not in new_file:
+                    self.client.send_request_to_server(self.client.my_socket,
+                                                       self.client.username +
+                                                       SEPERATOR +
+                                                       MOVE_FILE + SEPERATOR +
+                                                       self.client.without_cloud(
+                                                           new_file))
+                elif DOT not in new_file:
+                    self.client.send_request_to_server(self.client.my_socket,
+                                                       self.client.username +
+                                                       SEPERATOR +
+                                                       MAKE_DIR + SEPERATOR +
+                                                       self.client.without_cloud(
+                                                           new_file))
 
     def on_deleted(self, event):
         """
@@ -68,13 +69,14 @@ class MyHandler(FileSystemEventHandler):
         observer_check = self.reg.read_registry(HKEY_LOCAL_MACHINE,
                                                 CLIENT_REG, OBSERVER)
         if observer_check == ALLOW_OBS:
-            if DOT in event.src_path and APPINFO not in event.src_path \
-                    and format == CLOUD_FORMAT:
-                self.client.send_request_to_server(
-                    self.client.my_socket, self.client.username +
-                                           SEPERATOR + DELETE_FILE + SEPERATOR +
-                                           self.client.without_cloud(event.src_path))
-                self.reg.set_delete_flag(File(event.src_path).name)
+            if APPLICATION_GUI_NAME not in event.src_path:
+                if DOT in event.src_path and APPINFO not in event.src_path \
+                        and format == CLOUD_FORMAT:
+                    self.client.send_request_to_server(
+                        self.client.my_socket, self.client.username +
+                                               SEPERATOR + DELETE_FILE + SEPERATOR +
+                                               self.client.without_cloud(event.src_path))
+                    self.reg.set_delete_flag(File(event.src_path).name)
 
     def on_moved(self, event):
         """
@@ -87,12 +89,13 @@ class MyHandler(FileSystemEventHandler):
         observer_check = self.reg.read_registry(HKEY_LOCAL_MACHINE,
                                                 CLIENT_REG, OBSERVER)
         if observer_check == ALLOW_OBS:
-            if DOT not in src and DOT not in dest:
-                self.client.send_request_to_server(
-                    self.client.my_socket, self.client.username +
-                                           SEPERATOR + MOVE_DIR + SEPERATOR +
-                                           self.client.without_cloud(src) + SEPERATOR +
-                                           self.client.without_cloud(dest))
+            if APPLICATION_GUI_NAME not in event.src_path:
+                if DOT not in src and DOT not in dest:
+                    self.client.send_request_to_server(
+                        self.client.my_socket, self.client.username +
+                                               SEPERATOR + MOVE_DIR + SEPERATOR +
+                                               self.client.without_cloud(src) + SEPERATOR +
+                                               self.client.without_cloud(dest))
 
     def get_working_dir(self):
         """
@@ -124,6 +127,7 @@ class MyHandler(FileSystemEventHandler):
 if __name__ == "__main__":
     mode = sys.argv[SECOND]
     event_handler = MyHandler(mode)
+    event_handler.reg.set_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG, YES_REG)
     observer = Observer()
     observer.schedule(
         event_handler, path=event_handler.get_working_dir(),
@@ -139,3 +143,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
+    event_handler.reg.set_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG, NO_REG)

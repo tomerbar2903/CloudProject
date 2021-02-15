@@ -7,7 +7,7 @@ from CONSTS import *
 from Folder_Manager import MyHandler
 
 
-ICON_PATH = r"E:\12\Project\cloud_icon (1).ico"
+ICON_PATH = r"E:\12\Project\cloud_icon(1).ico"
 
 
 class GeneralGUI(wx.Frame):
