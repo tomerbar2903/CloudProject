@@ -22,21 +22,11 @@ class GuiExe(object):
         if self.username == BLANK and self.password == BLANK:
             app = wx.App()
             RegisterGUI(self.client)
-            client_thread = threading.Thread(
-                target=GuiExe.run_client)
-            client_thread.start()
             app.MainLoop()
         else:
             app = wx.App()
             SystemRegisterGUI(LOG_IN_BTN, self.client)
             app.MainLoop()
-
-    @staticmethod
-    def run_client():
-        """
-        :return: runs client in a thread
-        """
-        subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
 
 
 def main():

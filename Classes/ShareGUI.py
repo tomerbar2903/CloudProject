@@ -42,7 +42,8 @@ class ShareGUI(GeneralGUI):
         :return: opening new window after checking that the file is in the cloud
         """
         self.file_to_share = self.browser.GetPath()
-        check = (self.client.cloud in self.file_to_share and os.path.isfile(self.file_to_share))  # checks if file in cloud
+        check = (self.client.cloud in self.file_to_share and os.path.isfile(self.file_to_share) and
+                 PROJECT_FILES not in self.file_to_share)  # checks if file in cloud
         if not check:
             wx.MessageBox("You Must Choose A File In Your Cloud Folder", 'Share', wx.OK | wx.ICON_INFORMATION)
             self.Close()

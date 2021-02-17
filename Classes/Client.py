@@ -2,6 +2,7 @@ import socket
 import threading
 import time
 import os
+import shutil
 import win32ui
 import win32con
 import getpass
@@ -234,28 +235,9 @@ class Client(object):
         # initiates temporary files directory
         if not os.path.isdir(self.cloud + APPINFO):
             os.mkdir(self.cloud + APPINFO)
-        # initiates project files directory
-        if not os.path.isdir(self.cloud + PROJECT_FILES):
-            os.mkdir(self.cloud + PROJECT_FILES)
-
-    def get_startup_file(self, startup_dir):
-        """
-        :param: startup_dir: the startup directory of the client
-        :return: saves the file in the startup directory
-        """
-        startup_file = open(startup_dir + "\\Startup.pyw", 'w')
-        txt = Client.read_server_response(self.my_socket).decode()
-        startup_file.write(txt)
-        startup_file.close()
-
-    def get_folder_manager(self):
-        """
-        :return: saves the folder manager file in the temporary file directory
-        """
-        folder_manager_file = open(self.cloud + APPINFO + "\\Folder_Manger.py", 'w')
-        txt = Client.read_server_response(self.my_socket).decode()
-        folder_manager_file.write(txt)
-        folder_manager_file.close()
+        startup_dir = STARTUP_DIRECTORY % getpass.getuser()
+        if not os.path.isfile(startup_dir + "\\Startup.pyw"):
+            shutil.copy2(self.cloud + PATH_TO_STARTUP, startup_dir)
 
     def upload_all(self):
         """
@@ -264,7 +246,7 @@ class Client(object):
         files = []
         # r=root, d=directories, f = files
         for r, d, f in os.walk(self.cloud):
-            if APPINFO not in r:
+            if APPINFO not in r and PROJECT_FILES not in r:
                 for file in f:
                     if File(file).get_format() != CLOUD_FORMAT:
                         files.append(os.path.join(r, file))
