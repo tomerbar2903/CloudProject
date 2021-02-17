@@ -382,7 +382,7 @@ class Server(object):
                         reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DONT_SEND
                                                                + SEPERATOR + params[SECOND])
                 return reply
-            elif request == ASK_FOR_SHARE:
+            elif request.upper() == ASK_FOR_SHARE:
                 sock_to_send = self.get_socket(params[START])
                 if sock_to_send == ERROR_FORMAT:
                     reply = USER_OFFLINE
@@ -404,7 +404,7 @@ class Server(object):
                         reply = Server.add_request_to_database(username, params[START],
                                                                username + SEPERATOR + ASK_FOR_FILE + file_to_ask)
                 return reply
-            elif request == DENY_ACCESS:
+            elif request.upper() == DENY_ACCESS:
                 sock_to_send = self.get_socket(params[START])
                 if sock_to_send == ERROR_FORMAT:
                     reply = Server.add_request_to_database(username, params[START], username + SEPERATOR + DENY_ACCESS)
@@ -414,7 +414,7 @@ class Server(object):
                         reply = Server.add_request_to_database(username, params[START], username + SEPERATOR
                                                                + DENY_ACCESS)
                 return reply
-            elif request == GET_ONLINE_USERS:
+            elif request.upper() == GET_ONLINE_USERS:
                 return self.get_online_users(username)
             return False
         except Exception as m:

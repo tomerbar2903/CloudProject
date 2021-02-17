@@ -6,6 +6,7 @@ COMMANDS = ["UPLOAD_FILE", "BLUP", "DOWNLOAD_FILE",
             "ASK_FILE", "DENY_ACCESS", "GET_ONLINE_USERS"]
 GET_ONLINE_USERS = "GET_ONLINE_USERS"
 NO_USERS = 0
+PROJECT_FILES = "\\Project Files"
 NO_ONLINE = "No one is online"
 TRASH_DIRECTORY = "Trash"
 DENY_ACCESS = "DENY_ACCESS"
@@ -21,6 +22,7 @@ ASK_FOR_FILES = "Ask Other Users"
 ASK_BTN = "Ask"
 SHARE = "SHARE"
 FILE_SEPARATOR = " |$|$ "
+STARTUP_DIRECTORY = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'
 GET_USERS = "GET_USERS"
 PERMISSION_DENIED = "permission denied"
 MAKE_DIR = "MAKE_DIR"

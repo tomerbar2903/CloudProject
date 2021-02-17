@@ -127,7 +127,6 @@ class MyHandler(FileSystemEventHandler):
 if __name__ == "__main__":
     mode = sys.argv[SECOND]
     event_handler = MyHandler(mode)
-    event_handler.reg.set_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG, YES_REG)
     observer = Observer()
     observer.schedule(
         event_handler, path=event_handler.get_working_dir(),

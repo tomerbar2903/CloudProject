@@ -9,10 +9,6 @@ from Folder_Manager import *
 from InitCloudGUI import *
 from ChooseShareGUI import *
 from ShareGUI import *
-import subprocess
-
-
-CLIENT_PROGRAM_PATH = R'E:\\12\\Project\\Classes\\Folder_Manager.py'
 
 
 class SystemRegisterGUI(GeneralGUI):
@@ -49,9 +45,6 @@ class SystemRegisterGUI(GeneralGUI):
                                        password)
             if r == FINE:
                 wx.MessageBox('Logged In', 'Register', wx.OK | wx.ICON_INFORMATION)
-                client_thread = threading.Thread(
-                    target=self.run_client)
-                client_thread.start()
                 ChooseShareGUI(self.client.username, self.client)
             else:
                 wx.MessageBox(r, "Register", wx.OK | wx.ICON_INFORMATION)
@@ -65,13 +58,6 @@ class SystemRegisterGUI(GeneralGUI):
             else:
                 wx.MessageBox('Username Already Exists', "Register", wx.OK | wx.ICON_INFORMATION)
                 SystemRegisterGUI(self.mode, self.client)  # Opens up a new window
-
-    def run_client(self):
-        """
-        :return: runs client in a thread
-        """
-        subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
-        self.client.client_reg.set_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG, NO_REG)
 
     def positions(self):
         """

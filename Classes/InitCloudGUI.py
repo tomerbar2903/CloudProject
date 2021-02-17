@@ -11,9 +11,6 @@ from ShareGUI import *
 from ChooseShareGUI import *
 
 
-CLIENT_PROGRAM_PATH = R'E:\\12\\Project\\Classes\\Folder_Manager.py'
-
-
 class InitCloudGUI(GeneralGUI):
     """
     creating the panel
@@ -49,16 +46,15 @@ class InitCloudGUI(GeneralGUI):
             self.client.set_up()
             wx.MessageBox("You Are All Set!", 'Set-Up', wx.OK | wx.ICON_INFORMATION)
             client_thread = threading.Thread(
-                target=InitCloudGUI.run_client)
+                target=self.run_client)
             client_thread.start()
             ChooseShareGUI(self.client.username, self.client)
 
-    @staticmethod
-    def run_client():
+    def run_client(self):
         """
         :return: runs client in a thread
         """
-        subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
+        subprocess.run([PYTHON, self.client.cloud + APPINFO + "\\Folder_Manager.py", APP_MODE])
 
     def browse(self):
         """

@@ -4,6 +4,7 @@ import time
 import os
 import win32ui
 import win32con
+import getpass
 from File import *
 from ReadRegistry import *
 
@@ -226,12 +227,35 @@ class Client(object):
 
     def set_up(self):
         """
-        creates a new directory under C:\Program Files - where temporary
-        files will be held
+        creates a new directory under current cloud - where temporary
+        files will be held, and folder manager file will be saved
         :return: -
         """
+        # initiates temporary files directory
         if not os.path.isdir(self.cloud + APPINFO):
             os.mkdir(self.cloud + APPINFO)
+        # initiates project files directory
+        if not os.path.isdir(self.cloud + PROJECT_FILES):
+            os.mkdir(self.cloud + PROJECT_FILES)
+
+    def get_startup_file(self, startup_dir):
+        """
+        :param: startup_dir: the startup directory of the client
+        :return: saves the file in the startup directory
+        """
+        startup_file = open(startup_dir + "\\Startup.pyw", 'w')
+        txt = Client.read_server_response(self.my_socket).decode()
+        startup_file.write(txt)
+        startup_file.close()
+
+    def get_folder_manager(self):
+        """
+        :return: saves the folder manager file in the temporary file directory
+        """
+        folder_manager_file = open(self.cloud + APPINFO + "\\Folder_Manger.py", 'w')
+        txt = Client.read_server_response(self.my_socket).decode()
+        folder_manager_file.write(txt)
+        folder_manager_file.close()
 
     def upload_all(self):
         """

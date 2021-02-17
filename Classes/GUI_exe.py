@@ -18,28 +18,25 @@ class GuiExe(object):
         self.reg = ReadRegistry(CLIENT_REG)
         self.username = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG)
         self.password = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, PASSWORD_REG)
+        self.client = Client(CLIENT_MODE, None, None)
         if self.username == BLANK and self.password == BLANK:
-            self.client = Client(CLIENT_MODE, None, None)
             app = wx.App()
             RegisterGUI(self.client)
+            client_thread = threading.Thread(
+                target=GuiExe.run_client)
+            client_thread.start()
             app.MainLoop()
         else:
-            self.client = Client(MID_GUI_MODE, None, None)
             app = wx.App()
-            folder_manager = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG)
-            if folder_manager == NO_REG:
-                client_thread = threading.Thread(
-                    target=self.run_client)
-                client_thread.start()
-            ChooseShareGUI(self.username, self.client)
+            SystemRegisterGUI(LOG_IN_BTN, self.client)
             app.MainLoop()
 
-    def run_client(self):
+    @staticmethod
+    def run_client():
         """
         :return: runs client in a thread
         """
         subprocess.run([PYTHON, CLIENT_PROGRAM_PATH, APP_MODE])
-        self.client.client_reg.set_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, FOLDER_MANAGER_REG, NO_REG)
 
 
 def main():
