@@ -238,6 +238,8 @@ class Client(object):
         startup_dir = STARTUP_DIRECTORY % getpass.getuser()
         if not os.path.isfile(startup_dir + "\\Startup.pyw"):
             shutil.copy2(self.cloud + PATH_TO_STARTUP, startup_dir)
+        if not os.path.isfile(self.cloud + "\\Cloudio.exe"):
+            shutil.copy2(self.cloud + CLOUDIO_PATH, self.cloud)
 
     def upload_all(self):
         """
@@ -246,7 +248,7 @@ class Client(object):
         files = []
         # r=root, d=directories, f = files
         for r, d, f in os.walk(self.cloud):
-            if APPINFO not in r and PROJECT_FILES not in r:
+            if APPINFO not in r and PROJECT_FILES not in r and CLOUDIO_NAME not in r:
                 for file in f:
                     if File(file).get_format() != CLOUD_FORMAT:
                         files.append(os.path.join(r, file))
