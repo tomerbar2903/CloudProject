@@ -6,7 +6,6 @@ An exe file to open the GUI
 from RegisterPanel import *
 from ChooseShareGUI import *
 from Client import *
-import threading
 from ReadRegistry import *
 
 
