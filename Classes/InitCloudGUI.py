@@ -54,7 +54,7 @@ class InitCloudGUI(GeneralGUI):
         """
         :return: runs client in a thread
         """
-        subprocess.run([PYTHON, self.client.cloud + PROJECT_FILES + "\\Programs\\Folder_Manager.py", APP_MODE])
+        subprocess.run([PYTHON, self.client.project_files + "Programs\\Folder_Manager.py", APP_MODE])
 
     def browse(self):
         """

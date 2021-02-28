@@ -9,7 +9,7 @@ import time
 
 SHORT_SLEEP = 1
 LONG_SLEEP = 3
-DATABASE = R"E:\12\Project\Usernames.db"
+DATABASE = R"F:\12\Project\Usernames.db"
 IP = '0.0.0.0'
 
 
@@ -744,6 +744,7 @@ class Server(object):
         for user in users:
             if user[START] == username:
                 ok = True
+                break
         if ok:
             conn.close()
             return USERNAME_EXISTS

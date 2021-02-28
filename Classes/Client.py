@@ -1,7 +1,6 @@
 import socket
 import threading
 import time
-import os
 import shutil
 import win32ui
 import win32con
@@ -22,6 +21,8 @@ class Client(object):
         """
         try:
             # initiate socket
+            self.user_pc = getpass.getuser()
+            self.project_files = PATH_TO_PROJECT_FILES % self.user_pc
             if constructor_mode == CLIENT_MODE:
                 reg = ReadRegistry(SERVER_REG)  # server cloud
                 ip1, port1 = reg.get_ip_port()
@@ -235,7 +236,7 @@ class Client(object):
         # initiates temporary files directory
         if not os.path.isdir(self.cloud + APPINFO):
             os.mkdir(self.cloud + APPINFO)
-        startup_dir = STARTUP_DIRECTORY % getpass.getuser()
+        startup_dir = STARTUP_DIRECTORY % self.user_pc
         if not os.path.isfile(startup_dir + "\\Startup.pyw"):
             shutil.copy2(self.cloud + PATH_TO_STARTUP, startup_dir)
         if not os.path.isfile(self.cloud + "\\Cloudio.exe"):

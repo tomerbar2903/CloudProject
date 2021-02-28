@@ -6,6 +6,7 @@ gets startup directory
 from ReadRegistry import *
 from CONSTS import *
 import subprocess
+import getpass
 
 
 class Startup(object):
@@ -20,11 +21,13 @@ class Startup(object):
             self.cloud = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, CLOUD_REG)
             self.run_client()
 
-    def run_client(self):
+    @staticmethod
+    def run_client():
         """
         :return: runs client in a thread
         """
-        subprocess.run([PYTHON, self.cloud + PROJECT_FILES + "\\Folder_Manager.py", APP_MODE])
+        path_to_program = PATH_TO_PROJECT_FILES % getpass.getuser() + "Programs\\Folder_Manager.py"
+        subprocess.run([PYTHON, path_to_program, APP_MODE])
 
 
 def main():
