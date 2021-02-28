@@ -206,6 +206,8 @@ class Client(object):
                 HKEY_LOCAL_MACHINE, CLIENT_REG, USERNAME_REG, self.username)
             ReadRegistry.set_registry(
                 HKEY_LOCAL_MACHINE, CLIENT_REG, PASSWORD_REG, self.password)
+        else:
+            return False
         return True
 
     def user_login(self, username, password):
@@ -249,7 +251,7 @@ class Client(object):
         files = []
         # r=root, d=directories, f = files
         for r, d, f in os.walk(self.cloud):
-            if APPINFO not in r and PROJECT_FILES not in r and CLOUDIO_NAME not in r:
+            if APPINFO not in r and CLOUDIO_NAME not in r:
                 for file in f:
                     if File(file).get_format() != CLOUD_FORMAT:
                         files.append(os.path.join(r, file))

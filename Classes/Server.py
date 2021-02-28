@@ -9,7 +9,7 @@ import time
 
 SHORT_SLEEP = 1
 LONG_SLEEP = 3
-DATABASE = R"F:\12\Project\Usernames.db"
+DATABASE = R"E:\12\Project\Usernames.db"
 IP = '0.0.0.0'
 
 

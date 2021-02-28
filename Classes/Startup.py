@@ -26,7 +26,7 @@ class Startup(object):
         """
         :return: runs client in a thread
         """
-        path_to_program = PATH_TO_PROJECT_FILES % getpass.getuser() + "Programs\\Folder_Manager.py"
+        path_to_program = PATH_TO_PROJECT_FILES % getpass.getuser() + "\\Programs\\Folder_Manager.py"
         subprocess.run([PYTHON, path_to_program, APP_MODE])
 
 

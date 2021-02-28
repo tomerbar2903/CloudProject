@@ -30,7 +30,7 @@ class MyHandler(FileSystemEventHandler):
                                                 CLIENT_REG, OBSERVER)
         last_deleted = self.reg.read_registry(HKEY_LOCAL_MACHINE, CLIENT_REG, DELETE_FLAG_REG)
         if observer_check == ALLOW_OBS:
-            if APPLICATION_GUI_NAME not in new_file and PROJECT_FILES not in new_file:
+            if APPLICATION_GUI_NAME not in new_file:
                 if last_deleted != File(new_file).name:
                     new_file = File.validate_file(new_file, RENAME_FILE_MODE)
                 if Client.valid_file(new_file) and \
@@ -69,7 +69,7 @@ class MyHandler(FileSystemEventHandler):
         observer_check = self.reg.read_registry(HKEY_LOCAL_MACHINE,
                                                 CLIENT_REG, OBSERVER)
         if observer_check == ALLOW_OBS:
-            if APPLICATION_GUI_NAME not in event.src_path and PROJECT_FILES not in event.src_path:
+            if APPLICATION_GUI_NAME not in event.src_path:
                 if DOT in event.src_path and APPINFO not in event.src_path \
                         and format == CLOUD_FORMAT:
                     self.client.send_request_to_server(
@@ -89,7 +89,7 @@ class MyHandler(FileSystemEventHandler):
         observer_check = self.reg.read_registry(HKEY_LOCAL_MACHINE,
                                                 CLIENT_REG, OBSERVER)
         if observer_check == ALLOW_OBS:
-            if APPLICATION_GUI_NAME not in event.src_path and PROJECT_FILES not in event.src_path:
+            if APPLICATION_GUI_NAME not in event.src_path:
                 if DOT not in src and DOT not in dest:
                     self.client.send_request_to_server(
                         self.client.my_socket, self.client.username +
